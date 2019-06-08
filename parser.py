@@ -56,7 +56,7 @@ class Parser:
             user=config.FRITZ_USER,
             password=config.FRITZ_PASSWORD)
         fritz = f.call_action('X_AVM-DE_OnTel', 'GetCallList')
-        print "This is the URL for the callers, including session token for now: " + fritz["NewCallListURL"]
+        print ("This is the URL for the callers, including session token for now: " + fritz["NewCallListURL"])
         xmlhandle = urllib2.urlopen(fritz["NewCallListURL"])
         xmlresult = xmlhandle.read()
         xmlhandle.close()
@@ -118,7 +118,7 @@ class Parser:
                 result = result + resulttime + '\n' + i['summary'] + '\n'
                 calitem[calcounter] = resulttime + ': ' + i['summary']
                 calcounter = calcounter + 1
-            print 'Got everything together from calendar service, byebye'
+            print ('Got everything together from calendar service, byebye')
             return {'reply': result, 'calendarlist': calitem}
         except:
             return {'reply': 'did not work', 'calendarlist': calitem}
@@ -161,7 +161,6 @@ class Parser:
                     ['e10'])
             }
         except Exception:
-            print 'Ohoh, fuel is closed'
             return {'reply': 'Fuel station is closed', 'fuelPrice': 'N/A'}
 
 
@@ -181,7 +180,7 @@ class Parser:
         with open('pid.txt', 'r') as f:
             pid = f.read().replace('\n', '')
         f.close()
-        print 'Killing process motion with pid: ' + pid
+        print ('Killing process motion with pid: ' + pid)
         subprocess.call('sudo kill ' + pid, shell=True)
         config.ALARM_IS_ON = 0
         result = "Alarm wurde de-aktiviert.."
@@ -301,7 +300,6 @@ class Parser:
             urllib2.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
                             config.BLOCKIO_APIKEY))
         result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
-        print result
         return {'reply': result}
 
     def transferBitcoins(self, request):
@@ -313,9 +311,7 @@ class Parser:
                 'https://block.io/api/v2/withdraw/?api_key=' +
                 config.BLOCKIO_APIKEY + '&amounts=' + amount +
                 '&to_addresses=' + target + '&pin=' + config.BLOCKIO_PIN))
-        print str(transaction_result)
         result = 'Master, ich habe ' + amount + ' bitcoins ueberwiesen'
-        print result
         return {'reply': result}
 
     def checkStatus(self, inputstatus):
@@ -420,9 +416,9 @@ class Parser:
     def showDashboardMessage(self, inputmessage):
         #TODO, not implemented yet to show a nice dashboard message sent by me via Telegram
         try:
-            print "Update the dashboard.."
+            print ("Update the dashboard..")
         except Exception:
-            print 'Ohoh, something went wrong when updating the dashboard...'
+            print ('Ohoh, something went wrong when updating the dashboard...')
 
     def updateDashboard(self, displayFuel=False):
         try:
@@ -475,7 +471,7 @@ class Parser:
 
             
         except Exception:
-            print 'Ohoh, something went wrong when updating the dashboard...'
+            print ('Ohoh, something went wrong when updating the dashboard...')
 
     def parseInput(self, request):
         #default reply if none of the keywords was used
@@ -561,7 +557,6 @@ class Parser:
             result = self.showDashboardMessage(inputmessage)
 
         #save status, TODO make this configurable
-        print request
         if request in [
                 'gut', 'schlecht', 'ganz ok', 'superb', 'arbeit', 'chef',
                 'kollegen', 'kunde', 'inhalt', 'beziehung', 'erlebnis',
@@ -569,7 +564,6 @@ class Parser:
                 'verwandschaft', 'eltern', 'schwiegereltern', 'gesundheit',
                 'schlapp', 'fieber', 'arztbesuch', 'uebelkeit'
         ]:
-            print 'Saving status..'
             self.saveStatus(request)
             result = self.checkStatus(request)
         return result
