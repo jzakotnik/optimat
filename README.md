@@ -18,3 +18,4 @@ Currently it does
 * Local weather
 * Retrieving news from Spiegel Online Feed
 
+![Alt text](doc/sample_dashboard.jpg?raw=true "Dashboard exampe")
