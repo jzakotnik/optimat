@@ -62,5 +62,8 @@ while 1:
     checkScheduler()  # if there are any scheduled bot messages, trigger them here
     secondCounter += 1
     if (secondCounter >= 300):
-        p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
+        try:
+            p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
+        except Exception:
+            print('Ohoh, something went wrong when updating the dashboard...')
         secondCounter = 0
