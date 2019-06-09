@@ -413,8 +413,7 @@ class Parser:
             'Executed rss feed parse ,this is the result' + resultstring)
         return {'reply': resultstring, 'newslist': newsitem}
 
-    def showDashboardMessage(self, inputmessage):
-        #TODO, not implemented yet to show a nice dashboard message sent by me via Telegram
+    def saveTopic(self, inputmessage):
         try:
             print ("Update the dashboard..")
         except Exception:
@@ -552,9 +551,9 @@ class Parser:
             result = self.checkNews()
 
         #send a message to the dashboard
-        if request.find("msg") >= 0:
-            inputmessage = request[4:]
-            result = self.showDashboardMessage(inputmessage)
+        if request.find("thema") >= 0:
+            inputmessage = request[6:]
+            result = self.saveTopic(inputmessage)
 
         #save status, TODO make this configurable
         if request in [
