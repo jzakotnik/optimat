@@ -19,3 +19,10 @@ Currently it does
 * Retrieving news from Spiegel Online Feed
 
 ![Alt text](doc/sample_dashboard.jpg?raw=true "Dashboard exampe")
+
+# Installation
+* Install python and virtualenv
+* Install requirements.txt
+
+
+
