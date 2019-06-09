@@ -1,10 +1,8 @@
 import json
-import urllib2
 import urllib
 import requests
 import logging
 import smtplib
-import telepot
 
 import time
 

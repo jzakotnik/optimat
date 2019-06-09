@@ -3,7 +3,6 @@ cachetools==3.1.1
 certifi==2019.3.9
 chardet==3.0.4
 CouchDB==1.2
-discovery==0.0.4
 feedparser==5.2.1
 fritzconnection==0.6.5
 google-api-python-client==1.7.9
@@ -19,6 +18,5 @@ python-dateutil==2.8.0
 requests==2.5.0
 rsa==4.0
 six==1.12.0
-telepot==12.7
 uritemplate==3.0.0
 urllib3==1.25.3

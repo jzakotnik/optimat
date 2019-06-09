@@ -1,14 +1,29 @@
-import telepot
-import parser
+
+from telegram.ext import MessageHandler, Filters, Updater
+# import parser
 import time
 import datetime
 import optimatconfig as config
 import os
 import logging
 
-p = parser.Parser()
-bot = telepot.Bot(config.TELEGRAM_BOT_TOKEN)
+
 logging.basicConfig(filename='optimat.log', level=logging.DEBUG)
+
+updater = Updater(token=config.TELEGRAM_BOT_TOKEN)
+dispatcher = updater.dispatcher
+
+
+def echo(update, context):
+    if (context.message.chat.username == 'jurejure'):
+        context.message.reply_text(context.message.text)
+
+
+echo_handler = MessageHandler(Filters.text, echo)
+dispatcher.add_handler(echo_handler)
+
+updater.start_polling()
+# p = parser.Parser()
 
 
 def timeInRange(start, end, x):
@@ -51,19 +66,17 @@ def checkScheduler():
                               result['reply']))  # send sbahn
 
 
-print(bot.getMe())
-bot.notifyOnMessage(handle)
 logging.info('Listening...')
 secondCounter = 295  # when starting, trigger update dashboard after 5sec
 logging.info('Optimat started...')
 
-while 1:
-    time.sleep(1)
-    checkScheduler()  # if there are any scheduled bot messages, trigger them here
-    secondCounter += 1
-    if (secondCounter >= 300):
-        try:
-            p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
-        except Exception:
-            print('Ohoh, something went wrong when updating the dashboard...')
-        secondCounter = 0
+# while 1:
+#    time.sleep(1)
+#    checkScheduler()  # if there are any scheduled bot messages, trigger them here
+#    secondCounter += 1
+# if (secondCounter >= 300):
+#    try:
+#        p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
+#    except Exception:
+#        print('Ohoh, something went wrong when updating the dashboard...')
+#   secondCounter = 0
