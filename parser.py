@@ -150,10 +150,7 @@ class Parser:
         logging.info(str(traffic_back))
         data_to=json.load(str(traffic_to))
         data_back=json.load(str(traffic_back))
-        resultstring="Master, hier aktueller Verkehr zur Kita: " +
-            data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] +
-                ", Rueckweg: " +
-                    data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
+        resultstring="Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
 
         return {
             'reply':
