@@ -299,14 +299,12 @@ class Parser:
         # TODO when this is available as DB OpenData, change to API
         # TODO something is wrong with the encoding here
         for x in range(0, 5):
-            traintime=tree.xpath(
-                '//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
+            traintime=tree.xpath('//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
             delay=tree.xpath(
                 '//*[@id="journeyRow_' + str(x) + '"]/td[6]//span/text()')
             traintimestring=''.join(traintime).encode('utf-8')
             delaytimestring=''.join(delay).encode('utf-8')
-            result=result + "Zug um: " +
-                str(traintimestring) + " mit " + str(delaytimestring) + "\n"
+            result=result + "Zug um: " + str(traintimestring) + " mit " + str(delaytimestring) + "\n"
         return {'reply': result}
 
     def getBitcoinBalance(self):
