@@ -29,7 +29,7 @@ import subprocess
 import fritzconnection as fc
 import couchdb
 
-#google APIs authentication
+# google APIs authentication
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 
@@ -41,7 +41,6 @@ import datetime
 from configparser import ConfigParser
 
 
-
 class Parser:
     config = ConfigParser()
     config.read('config.ini')
@@ -50,7 +49,7 @@ class Parser:
         FRITZ_IP = self.config.get('main', 'FRITZ_IP')
         FRITZ_USER = self.config.get('main', 'FRITZ_USER')
         FRITZ_PASSWORD = self.config.get('main', 'FRITZ_PASSWORD')
-        
+
         result = "Master, versuche die Anrufe zu ermitteln.."
         telitem = [
             'Kein Call', 'Kein Call', 'Kein Call', 'Kein Call', 'Kein Call'
@@ -61,7 +60,8 @@ class Parser:
             user=FRITZ_USER,
             password=FRITZ_PASSWORD)
         fritz = f.call_action('X_AVM-DE_OnTel', 'GetCallList')
-        print ("This is the URL for the callers, including session token for now: " + fritz["NewCallListURL"])
+        print ("This is the URL for the callers, including session token for now: " +
+               fritz["NewCallListURL"])
         xmlhandle = urllib.request.urlopen(fritz["NewCallListURL"])
         xmlresult = xmlhandle.read()
         xmlhandle.close()
@@ -84,15 +84,15 @@ class Parser:
                 telitem[countedresults] = thisCall
                 result = result + thisCall
                 countedresults = countedresults + 1
-                #print countedresults
+                # print countedresults
             if countedresults > maxResults:
-                #print "break now"
+                # print "break now"
                 break
         return {'reply': result, 'tellist': telitem}
 
     def getCalendarEvents(self):
         GOOGLECALENDAR_ID = self.config.get('main', 'GOOGLECALENDAR_ID')
-        
+
         result = "Master, hier die folgenden Meetings..\n"
         calitem = [
             'Kein Termin', 'Kein Termin', 'Kein Termin', 'Kein Termin',
@@ -120,7 +120,7 @@ class Parser:
                 if 'date' in eventtime:
                     resulttime = eventtime['date']
                 parsedTime = dateutil.parser.parse(
-                    resulttime)  #reformat the time
+                    resulttime)  # reformat the time
                 resulttime = parsedTime.strftime('%a, %d-%m, %H:%M')
                 result = result + resulttime + '\n' + i['summary'] + '\n'
                 calitem[calcounter] = resulttime + ': ' + i['summary']
@@ -131,22 +131,30 @@ class Parser:
             return {'reply': 'did not work', 'calendarlist': calitem}
 
     def getKitaTraffic(self):
-        #check google maps for the traffic to kindergarten
+        # check google maps for the traffic to kindergarten
         GOOGLE_API_KEY = self.config.get('main', 'GOOGLE_API_KEY')
         GOOGLETRAFFIC_SOURCE = self.config.get('main', 'GOOGLETRAFFIC_SOURCE')
-        GOOGLETRAFFIC_DESTINATION = self.config.get('main', 'GOOGLETRAFFIC_DESTINATION')
+        GOOGLETRAFFIC_DESTINATION = self.config.get(
+            'main', 'GOOGLETRAFFIC_DESTINATION')
         traffic_to = urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE+'&destinations='+GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE +
+                    '&destinations='+GOOGLETRAFFIC_DESTINATION +
+                        '&departure_time=now&mode=driving&language=de-DE&key='
                 + GOOGLE_API_KEY)
         traffic_back = urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION+'&destinations='+GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION +
+                    '&destinations='+GOOGLETRAFFIC_SOURCE +
+                        '&departure_time=now&mode=driving&language=de-DE&key='
                 + GOOGLE_API_KEY)
-        logging.info(traffic_to)
-        logging.info(traffic_back)
-        data_to = json.load(traffic_to)
-        data_back = json.load(traffic_back)
-        resultstring = "Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
-        
+        logging.info(str(traffic_to)))
+        logging.info(str(traffic_back))
+        data_to=json.load(str(traffic_to))
+        data_back=json.load(str(traffic_back))
+        resultstring="Master, hier aktueller Verkehr zur Kita: " +
+            data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] +
+                ", Rueckweg: " +
+                    data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
+
         return {
             'reply':
             resultstring,
@@ -155,16 +163,17 @@ class Parser:
         }
 
     def getFuelPrice(self):
-        #check fuel price in my neighbourhood
+        # check fuel price in my neighbourhood
         TANKEN_APIKEY = self.config.get('main', 'TANKEN_APIKEY')
         TANKEN_LOCATION = self.config.get('main', 'TANKEN_LOCATION')
         fuelprice = json.load(
             urllib.request.urlopen(
-                'https://creativecommons.tankerkoenig.de/json/prices.php?ids='+TANKEN_LOCATION+'&apikey='
+                'https://creativecommons.tankerkoenig.de/json/prices.php?ids=' +
+                    TANKEN_LOCATION+'&apikey='
                 + TANKEN_APIKEY))
-        resultstring = ''
+        resultstring=''
         try:
-            resultstring = "Master, hier der Tankpreis E10 bei Aral: " + str(
+            resultstring="Master, hier der Tankpreis E10 bei Aral: " + str(
                 fuelprice['prices'][TANKEN_LOCATION]
                 ['e10'])
             return {
@@ -180,10 +189,10 @@ class Parser:
 
     def startAlarm(self):
         # this starts motion detection for a connected webcam
-        #clean up alarmimages
+        # clean up alarmimages
         subprocess.call('rm -rf /home/pi/optimat/alarmimages/*', shell=True)
-        #start daemon
-        #maybe this?  on_event_end /home/guillo/bin/motion_encode_and_delete_jpgs gap 10
+        # start daemon
+        # maybe this?  on_event_end /home/guillo/bin/motion_encode_and_delete_jpgs gap 10
         subprocess.call('nohup sudo motion -p pid.txt', shell=True)
         self.config.set("main", "ALARM_IS_ON", "1")
         result = "Alarm wurde aktiviert.."
@@ -201,29 +210,29 @@ class Parser:
         return {'reply': result}
 
     def startEnergy(self):
-        #TODO change this to FritzDECT, deleted code for old switches
+        # TODO change this to FritzDECT, deleted code for old switches
         result = "Strom ist an.. (Lichter? Buegeleisen? Wasserkocher?)"
         return {'reply': result}
 
     def stopEnergy(self):
-        #TODO change this to FritzDECT, deleted code for old switches
+        # TODO change this to FritzDECT, deleted code for old switches
         result = "Strom ist aus.. (Lichter? Buegeleisen? Wasserkocher?)"
         return {'reply': result}
 
     def sendAlarm(self):
-        #TODO delete this?
+        # TODO delete this?
         resultstring = "Master, das Video wurde per eMail verschickt..."
-        
+
         return {'reply': resultstring}
 
     def listFilesNAS(self, path):
-        #TODO, this does not work yet, because the list call returns different format/values depending on number of files
-        #result = 'Your files in ' + path + ' are:\n'
-        #filestation = FileStation(config.NAS_IP, config.NAS_USER, config.NAS_PASSWORD)
-        #resultdict = filestation.list('/' + path, limit=0)
-        ##resultdict = filestation.list('/' + path, limit=0)['files'] #e.g. ourdata
-        #print resultdict
-        #for key in resultdict:
+        # TODO, this does not work yet, because the list call returns different format/values depending on number of files
+        # result = 'Your files in ' + path + ' are:\n'
+        # filestation = FileStation(config.NAS_IP, config.NAS_USER, config.NAS_PASSWORD)
+        # resultdict = filestation.list('/' + path, limit=0)
+        # resultdict = filestation.list('/' + path, limit=0)['files'] #e.g. ourdata
+        # print resultdict
+        # for key in resultdict:
         #    print key['path']
         #    result = result + key['path'] + '\n'
         return {'reply': 'todo'}
@@ -239,39 +248,39 @@ class Parser:
                 ':5000/webapi/auth.cgi?api=SYNO.API.Auth&version=6&method=login&account='
                 + NAS_USER + '&passwd=' + NAS_PASSWORD +
                 '&session=FileStation&format=sid'))
-        sidToken = authString['data']['sid']
-        downloadedFile = urllib.urlretrieve(
+        sidToken=authString['data']['sid']
+        downloadedFile=urllib.urlretrieve(
             'http://' + NAS_IP +
             ':5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path='+NAS_BASEFOLDER+
             + myfile + '&mode=download&_sid=' + sidToken,
             'filecache/' + ntpath.basename(myfile))
-        #extract file from whole path
-        newpath = 'filecache/' + ntpath.basename(myfile)
+        # extract file from whole path
+        newpath='filecache/' + ntpath.basename(myfile)
         return newpath
 
     def sendFileViaEmail(self, myfile):
-        newpath = self.downloadFilesNAS(
-            myfile)  #returns the location of the file locally
-        mail_user = self.config.get('main', 'MAIL_SENDER')
-        mail_pwd = self.config.get('main', 'MAIL_PASSWORD')
-        mail_to = self.config.get('main', 'MAIL_RECIPIENT')
-        MAIL_SERVER = self.config.get('main', 'MAIL_SERVER')
-        msg = MIMEMultipart()
+        newpath=self.downloadFilesNAS(
+            myfile)  # returns the location of the file locally
+        mail_user=self.config.get('main', 'MAIL_SENDER')
+        mail_pwd=self.config.get('main', 'MAIL_PASSWORD')
+        mail_to=self.config.get('main', 'MAIL_RECIPIENT')
+        MAIL_SERVER=self.config.get('main', 'MAIL_SERVER')
+        msg=MIMEMultipart()
 
-        msg['From'] = mail_user
-        msg['To'] = mail_to
-        msg['Subject'] = 'Mail from Optimat for you..'
+        msg['From']=mail_user
+        msg['To']=mail_to
+        msg['Subject']='Mail from Optimat for you..'
 
         msg.attach(MIMEText("Hello Master! Hier das File.."))
 
-        part = MIMEBase('application', 'octet-stream')
+        part=MIMEBase('application', 'octet-stream')
         part.set_payload(open(newpath, 'rb').read())
         encoders.encode_base64(part)
         part.add_header('Content-Disposition',
                         'attachment; filename="%s"' % os.path.basename(myfile))
         msg.attach(part)
 
-        mailServer = smtplib.SMTP(MAIL_SERVER, 587)
+        mailServer=smtplib.SMTP(MAIL_SERVER, 587)
         mailServer.ehlo()
         mailServer.starttls()
         mailServer.ehlo()
@@ -282,31 +291,32 @@ class Parser:
         return
 
     def getSBahnTraffic(self):
-        result = "Master, versuche die Verbindungen zu suchen.."
-        #result.encode('utf-8')
-        #TODO this is harcoded to Frankfurt West
-        page = requests.get(
+        result="Master, versuche die Verbindungen zu suchen.."
+        # result.encode('utf-8')
+        # TODO this is harcoded to Frankfurt West
+        page=requests.get(
             'http://reiseauskunft.bahn.de/bin/bhftafel.exe/dn?ld=15079&rt=1&input=Frankfurt(Main)West%238002042&boardType=dep&time=actual&productsFilter=00001&REQTrain_name=4&start=yes&'
         )
-        tree = html.fromstring(page.content)
-        result = "Master, das sind die naechsten Verbindungen der S4 ab Westbahnhof:\n"
-        #TODO when this is available as DB OpenData, change to API
-        #TODO something is wrong with the encoding here
+        tree=html.fromstring(page.content)
+        result="Master, das sind die naechsten Verbindungen der S4 ab Westbahnhof:\n"
+        # TODO when this is available as DB OpenData, change to API
+        # TODO something is wrong with the encoding here
         for x in range(0, 5):
-            traintime = tree.xpath(
+            traintime=tree.xpath(
                 '//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
-            delay = tree.xpath(
+            delay=tree.xpath(
                 '//*[@id="journeyRow_' + str(x) + '"]/td[6]//span/text()')
-            traintimestring = ''.join(traintime).encode('utf-8')
-            delaytimestring = ''.join(delay).encode('utf-8')
-            result = result + "Zug um: " + str(traintimestring) + " mit " + str(delaytimestring) + "\n"
+            traintimestring=''.join(traintime).encode('utf-8')
+            delaytimestring=''.join(delay).encode('utf-8')
+            result=result + "Zug um: " +
+                str(traintimestring) + " mit " + str(delaytimestring) + "\n"
         return {'reply': result}
 
     def getBitcoinBalance(self):
-        result = "Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
+        result="Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
         result.encode('utf-8')
-        BLOCKIO_APIKEY = self.config.get('main', 'BLOCKIO_APIKEY')
-        balance = json.load(
+        BLOCKIO_APIKEY=self.config.get('main', 'BLOCKIO_APIKEY')
+        balance=json.load(
             urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
                             BLOCKIO_APIKEY))
         result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
@@ -367,7 +377,7 @@ class Parser:
         return result
 
     def saveStatus(self, inputstatus):
-        #this saves the current psycho status to a local couchdb
+        # this saves the current psycho status to a local couchdb
         COUCHDB_SERVER = self.config.get('main', 'COUCHDB_SERVER')
         
         server = couchdb.Server(
@@ -389,7 +399,7 @@ class Parser:
         return {'reply': resultstring, 'onlyTemp': str(t)}
 
     def checkWeatherForecast(self):
-        #TODO this doesn't work on the chatbot yet, only dashboard?
+        # TODO this doesn't work on the chatbot yet, only dashboard?
         OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
         OPENWEATHER_LOCATIONID = self.config.get('main', 'OPENWEATHER_LOCATIONID')
         
@@ -397,16 +407,16 @@ class Parser:
             urllib.request.urlopen(
                 'http://api.openweathermap.org/data/2.5/forecast?id='+OPENWEATHER_LOCATIONID+'&APPID='
                 + OPENWEATHER_APIKEY + '&units=metric'))
-        #print 'Forecast: ' + json.dumps(completeforecast)
+        # print 'Forecast: ' + json.dumps(completeforecast)
         forecast = []
         for n in range(0, 7):
-            #print 'getting time..' + str(completeforecast['list'][n]['dt'])
+            # print 'getting time..' + str(completeforecast['list'][n]['dt'])
             time = datetime.datetime.fromtimestamp(
                 completeforecast['list'][n]['dt'])
             temperature = completeforecast['list'][n]['main']['temp']
-            #print 'getting icon....' + str(completeforecast['list'][n])
+            # print 'getting icon....' + str(completeforecast['list'][n])
             icon = 'http://openweathermap.org/img/w/' + completeforecast['list'][n]['weather'][0]['icon'] + '.png'
-            #print 'Got time ' + str(time) + ' and forecast ' + str(temperature) + ' and icon  ' + str(icon)
+            # print 'Got time ' + str(time) + ' and forecast ' + str(temperature) + ' and icon  ' + str(icon)
             forecast.append((time.strftime('%H:%M'), str(int(temperature)),
                              str(icon)))
         resultstring = 'Master, Temperatur in Koenigstein ist bei Grad Celsius'
@@ -418,7 +428,7 @@ class Parser:
         f = feedparser.parse(
             'http://www.spiegel.de/schlagzeilen/tops/index.rss')
         logging.info('Executed rss feed parse')
-        #collect headlines
+        # collect headlines
         newsitem = [
             'No headlines right now..', 'No headlines right now..',
             'No headlines right now..', 'No headlines right now..',
@@ -443,7 +453,7 @@ class Parser:
     def updateDashboard(self, displayFuel=False):
         try:
             print ("Update the dashboard..")
-            #initial data before the API call
+            # initial data before the API call
             dashdata = {
                 'traffic': '16m',
                 'fuel': '1.45',
@@ -461,7 +471,7 @@ class Parser:
             dashdata['miner'] = '0'
             dashdata['reward'] = '0'
             
-            #retrieved real data starts here:
+            # retrieved real data starts here:
             traffic = self.getKitaTraffic()
             dashdata['traffic'] = str(traffic['toDuration'] / 60) + 'min'
 
@@ -485,7 +495,7 @@ class Parser:
             fuel = self.getFuelPrice()
             dashdata['fuel'] = str(fuel['fuelPrice']) + 'EUR'
 
-            #TODO this could be routed to any dashboard, not only the local one
+            # TODO this could be routed to any dashboard, not only the local one
             print (requests.post(
                 'http://localhost:5000/dashboard', json=dashdata))
 
@@ -494,90 +504,90 @@ class Parser:
             print ('Ohoh, something went wrong when updating the dashboard...')
 
     def parseInput(self, request):
-        #default reply if none of the keywords was used
+        # default reply if none of the keywords was used
         result = {'reply': "Master, ich weiss nicht was Du meinst!"}
         logging.info("Got request: " + str(request))
         
-        #is it a file to be emailed from my NAS
+        # is it a file to be emailed from my NAS
         if str.lower(request).find("send") >= 0:
             print ("file detected...")
             myfile = request[5:]
             self.sendFileViaEmail(myfile)
             result = "eMail wurde verschickt, viel Spass damit!"
 
-        #is it a directory to be listed?
+        # is it a directory to be listed?
         if request.find("list") >= 0:
             path = request[5:]
             result = self.listFilesNAS(path)
 
-        #file operations require case sensitivity, therefore insensitivity to the command comes here:
+        # file operations require case sensitivity, therefore insensitivity to the command comes here:
         request = str.lower(request)
 
-        #is it some traffic information?
+        # is it some traffic information?
         if request == ("verkehr kita"):
             result = self.getKitaTraffic()
 
-        #calendar?
+        # calendar?
         if request == ("kalender"):
             result = self.getCalendarEvents()
 
-        #is it the delay of the SBahn information?
+        # is it the delay of the SBahn information?
         if request == ("sbahn"):
             result = self.getSBahnTraffic()
 
-        #do we want last callers from fritz box?
+        # do we want last callers from fritz box?
         if request == ("telefon"):
             result = self.getPhoneList()
 
-        #Current fuel price
+        # Current fuel price
         if request == ("tanken"):
             result = self.getFuelPrice()
 
-        #someone in the house? video alarm
+        # someone in the house? video alarm
         if request == ("alarm"):
             result = self.sendAlarm()
 
-        #starting webcam
+        # starting webcam
         if request == ("alarm on"):
             result = self.startAlarm()
 
-        #stopping webcam
+        # stopping webcam
         if request == ("alarm off"):
             result = self.stopAlarm()
 
-        #starting lights
+        # starting lights
         if request == ("strom an"):
             result = self.startEnergy()
 
-        #stopping lights
+        # stopping lights
         if request == ("strom aus"):
             result = self.stopEnergy()
 
-        #get bitcon wallet status
+        # get bitcon wallet status
         if request == ("konto"):
             result = self.getBitcoinBalance()
 
-        #send bitcon tos
+        # send bitcon tos
         if 'transfer' in request:
             result = self.transferBitcoins(request)
 
-        #how are you doing
+        # how are you doing
         if request == ("status"):
             result = self.checkStatus('status')
-            #how are you doing
-        #wetter
+            # how are you doing
+        # wetter
         if request == ("wetter"):
             result = self.checkWeather()
-        #spiegel online news
+        # spiegel online news
         if request == ("news"):
             result = self.checkNews()
 
-        #send a message to the dashboard
+        # send a message to the dashboard
         if request.find("thema") >= 0:
             inputmessage = request[6:]
             result = self.saveTopic(inputmessage)
 
-        #save status, TODO make this configurable
+        # save status, TODO make this configurable
         if request in [
                 'gut', 'schlecht', 'ganz ok', 'superb', 'arbeit', 'chef',
                 'kollegen', 'kunde', 'inhalt', 'beziehung', 'erlebnis',
