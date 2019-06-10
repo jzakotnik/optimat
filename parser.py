@@ -123,11 +123,11 @@ class Parser:
         #check google maps for the traffic to kindergarten
         data_to = json.load(
             urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+config.GOOGLETRAFFIC_SOURCE+'&destinations='+config.GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(config.GOOGLETRAFFIC_SOURCE)+'&destinations='+config.GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
                 + config.GOOGLE_API_KEY))
         data_back = json.load(
             urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+config.GOOGLETRAFFIC_DESTINATION+'&destinations='+config.GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(config.GOOGLETRAFFIC_DESTINATION)+'&destinations='+config.GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
                 + config.GOOGLE_API_KEY))
         resultstring = "Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
         
