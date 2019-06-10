@@ -24,7 +24,6 @@ from email.mime.text import MIMEText
 from lxml import html
 import ntpath
 import xml.etree.ElementTree as ET
-import requests
 import os
 import subprocess
 import optimatconfig as config
