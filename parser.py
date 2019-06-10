@@ -26,7 +26,6 @@ import ntpath
 import xml.etree.ElementTree as ET
 import os
 import subprocess
-import optimatconfig as config
 import fritzconnection as fc
 import couchdb
 
@@ -39,21 +38,31 @@ from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
 import datetime
 
+from configparser import ConfigParser
+
+
 
 class Parser:
+    config = ConfigParser()
+    config.read('config.ini')
+
     def getPhoneList(self):
+        FRITZ_IP = self.config.get('main', 'FRITZ_IP')
+        FRITZ_USER = self.config.get('main', 'FRITZ_USER')
+        FRITZ_PASSWORD = self.config.get('main', 'FRITZ_PASSWORD')
+        
         result = "Master, versuche die Anrufe zu ermitteln.."
         telitem = [
             'Kein Call', 'Kein Call', 'Kein Call', 'Kein Call', 'Kein Call'
         ]
 
         f = fc.FritzConnection(
-            address=config.FRITZ_IP,
-            user=config.FRITZ_USER,
-            password=config.FRITZ_PASSWORD)
+            address=FRITZ_IP,
+            user=FRITZ_USER,
+            password=FRITZ_PASSWORD)
         fritz = f.call_action('X_AVM-DE_OnTel', 'GetCallList')
         print ("This is the URL for the callers, including session token for now: " + fritz["NewCallListURL"])
-        xmlhandle = urllib.urlopen(fritz["NewCallListURL"])
+        xmlhandle = urllib.request.urlopen(fritz["NewCallListURL"])
         xmlresult = xmlhandle.read()
         xmlhandle.close()
         root = ET.fromstring(xmlresult)
@@ -82,6 +91,8 @@ class Parser:
         return {'reply': result, 'tellist': telitem}
 
     def getCalendarEvents(self):
+        GOOGLECALENDAR_ID = self.config.get('main', 'GOOGLECALENDAR_ID')
+        
         result = "Master, hier die folgenden Meetings..\n"
         calitem = [
             'Kein Termin', 'Kein Termin', 'Kein Termin', 'Kein Termin',
@@ -95,7 +106,7 @@ class Parser:
             now = datetime.datetime.utcnow().isoformat(
             ) + 'Z'  # 'Z' indicates UTC time
             eventsResult = cal.events().list(
-                calendarId=config.GOOGLECALENDAR_ID,
+                calendarId=GOOGLECALENDAR_ID,
                 timeMin=now,
                 maxResults=5,
                 singleEvents=True,
@@ -121,14 +132,17 @@ class Parser:
 
     def getKitaTraffic(self):
         #check google maps for the traffic to kindergarten
+        GOOGLE_API_KEY = self.config.get('main', 'GOOGLE_API_KEY')
+        GOOGLETRAFFIC_SOURCE = self.config.get('main', 'GOOGLETRAFFIC_SOURCE')
+        GOOGLETRAFFIC_DESTINATION = self.config.get('main', 'GOOGLETRAFFIC_DESTINATION')
         data_to = json.load(
             urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(config.GOOGLETRAFFIC_SOURCE)+'&destinations='+config.GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
-                + config.GOOGLE_API_KEY))
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE+'&destinations='+GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
+                + GOOGLE_API_KEY))
         data_back = json.load(
             urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+str(config.GOOGLETRAFFIC_DESTINATION)+'&destinations='+config.GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
-                + config.GOOGLE_API_KEY))
+                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION+'&destinations='+GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
+                + GOOGLE_API_KEY))
         resultstring = "Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
         
         return {
@@ -140,20 +154,22 @@ class Parser:
 
     def getFuelPrice(self):
         #check fuel price in my neighbourhood
+        TANKEN_APIKEY = self.config.get('main', 'TANKEN_APIKEY')
+        TANKEN_LOCATION = self.config.get('main', 'TANKEN_LOCATION')
         fuelprice = json.load(
             urllib.request.urlopen(
-                'https://creativecommons.tankerkoenig.de/json/prices.php?ids='+config.TANKEN_LOCATION+'&apikey='
-                + config.TANKEN_APIKEY))
+                'https://creativecommons.tankerkoenig.de/json/prices.php?ids='+TANKEN_LOCATION+'&apikey='
+                + TANKEN_APIKEY))
         resultstring = ''
         try:
             resultstring = "Master, hier der Tankpreis E10 bei Aral: " + str(
-                fuelprice['prices'][config.TANKEN_LOCATION]
+                fuelprice['prices'][TANKEN_LOCATION]
                 ['e10'])
             return {
                 'reply':
                 str(resultstring),
                 'fuelPrice':
-                str(fuelprice['prices'][config.TANKEN_LOCATION]
+                str(fuelprice['prices'][TANKEN_LOCATION]
                     ['e10'])
             }
         except Exception:
@@ -167,7 +183,7 @@ class Parser:
         #start daemon
         #maybe this?  on_event_end /home/guillo/bin/motion_encode_and_delete_jpgs gap 10
         subprocess.call('nohup sudo motion -p pid.txt', shell=True)
-        config.ALARM_IS_ON = 1
+        self.config.set("main", "ALARM_IS_ON", "1")
         result = "Alarm wurde aktiviert.."
         return {'reply': result}
 
@@ -178,7 +194,7 @@ class Parser:
         f.close()
         print ('Killing process motion with pid: ' + pid)
         subprocess.call('sudo kill ' + pid, shell=True)
-        config.ALARM_IS_ON = 0
+        self.config.set("main", "ALARM_IS_ON", "0")
         result = "Alarm wurde de-aktiviert.."
         return {'reply': result}
 
@@ -193,20 +209,9 @@ class Parser:
         return {'reply': result}
 
     def sendAlarm(self):
-        #convert all AVI to MP4, so it is compatible with Telegram
-        #subprocess.call('./convertFiles.sh')
-        # this sends all webcam mp4 files in alarmimages
-        #mp4files = [f for f in listdir('alarmimages/') if f.endswith('.mp4')]
-        #check for video files
+        #TODO delete this?
         resultstring = "Master, das Video wurde per eMail verschickt..."
-        #print "sending video..."
-        bot = telepot.Bot(config.TELEGRAM_BOT_TOKEN)
-        #for f in mp4files:
-        #    bot.sendVideo(config.MY_TELEGRAM_ID, open('alarmimages/'+f, 'rb'), caption='Video')
-        #clean up alarmimages
-        #subprocess.call('rm -rf /home/pi/optimat/alarmimages/*',shell=True)
-        #config.ALARM_COUNT = 0
-
+        
         return {'reply': resultstring}
 
     def listFilesNAS(self, path):
@@ -222,16 +227,20 @@ class Parser:
         return {'reply': 'todo'}
 
     def downloadFilesNAS(self, myfile, method='download'):
+        NAS_IP = self.config.get('main', 'NAS_IP')
+        NAS_USER = self.config.get('main', 'NAS_USER')
+        NAS_PASSWORD = self.config.get('main', 'NAS_PASSWORD')
+        NAS_BASEFOLDER = self.config.get('main', 'NAS_BASEFOLDER')
         authString = json.load(
             urllib.request.urlopen(
-                'http://' + config.NAS_IP +
+                'http://' + NAS_IP +
                 ':5000/webapi/auth.cgi?api=SYNO.API.Auth&version=6&method=login&account='
-                + config.NAS_USER + '&passwd=' + config.NAS_PASSWORD +
+                + NAS_USER + '&passwd=' + NAS_PASSWORD +
                 '&session=FileStation&format=sid'))
         sidToken = authString['data']['sid']
         downloadedFile = urllib.urlretrieve(
-            'http://' + config.NAS_IP +
-            ':5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path='+config.NAS_BASEFOLDER+
+            'http://' + NAS_IP +
+            ':5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path='+NAS_BASEFOLDER+
             + myfile + '&mode=download&_sid=' + sidToken,
             'filecache/' + ntpath.basename(myfile))
         #extract file from whole path
@@ -241,9 +250,10 @@ class Parser:
     def sendFileViaEmail(self, myfile):
         newpath = self.downloadFilesNAS(
             myfile)  #returns the location of the file locally
-        mail_user = config.MAIL_SENDER
-        mail_pwd = config.MAIL_PASSWORD
-        mail_to = config.MAIL_RECIPIENT
+        mail_user = self.config.get('main', 'MAIL_SENDER')
+        mail_pwd = self.config.get('main', 'MAIL_PASSWORD')
+        mail_to = self.config.get('main', 'MAIL_RECIPIENT')
+        MAIL_SERVER = self.config.get('main', 'MAIL_SERVER')
         msg = MIMEMultipart()
 
         msg['From'] = mail_user
@@ -259,7 +269,7 @@ class Parser:
                         'attachment; filename="%s"' % os.path.basename(myfile))
         msg.attach(part)
 
-        mailServer = smtplib.SMTP(config.MAIL_SERVER, 587)
+        mailServer = smtplib.SMTP(MAIL_SERVER, 587)
         mailServer.ehlo()
         mailServer.starttls()
         mailServer.ehlo()
@@ -293,22 +303,27 @@ class Parser:
     def getBitcoinBalance(self):
         result = "Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
         result.encode('utf-8')
+        BLOCKIO_APIKEY = self.config.get('main', 'BLOCKIO_APIKEY')
         balance = json.load(
             urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
-                            config.BLOCKIO_APIKEY))
+                            BLOCKIO_APIKEY))
         result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
         return {'reply': result}
 
     def transferBitcoins(self, request):
+        BLOCKIO_APIKEY = self.config.get('main', 'BLOCKIO_APIKEY')
+        BLOCKIO_TARGETWALLET = self.config.get('main', 'BLOCKIO_TARGETWALLET')
+        BLOCKIO_PIN = self.config.get('main', 'BLOCKIO_PIN')
+        
         tokens = request.split(' ')
         amount = str(tokens[1])
-        target = config.BLOCKIO_TARGETWALLET  #hardcoded for now
+        target = BLOCKIO_TARGETWALLET  #hardcoded for now
         transaction_result = json.load(
             urllib.request.urlopen(
                 'https://block.io/api/v2/withdraw/?api_key=' +
-                config.BLOCKIO_APIKEY + '&amounts=' + amount +
-                '&to_addresses=' + target + '&pin=' + config.BLOCKIO_PIN))
-        result = 'Master, ich habe ' + amount + ' bitcoins ueberwiesen'
+                BLOCKIO_APIKEY + '&amounts=' + amount +
+                '&to_addresses=' + target + '&pin=' + BLOCKIO_PIN))
+        result = 'Master, ich habe ' + amount + ' bitcoins an Ihr Konto ueberwiesen'
         return {'reply': result}
 
     def checkStatus(self, inputstatus):
@@ -351,17 +366,21 @@ class Parser:
 
     def saveStatus(self, inputstatus):
         #this saves the current psycho status to a local couchdb
+        COUCHDB_SERVER = self.config.get('main', 'COUCHDB_SERVER')
+        
         server = couchdb.Server(
-            url='http://' + config.COUCHDB_SERVER + ':5984/')
+            url='http://' + COUCHDB_SERVER + ':5984/')
         db = server['feely']
         db.save({'status': inputstatus, 'timestamp': time.time()})
         return {'reply': 'Danke, viel Erfolg heute noch'}
 
     def checkWeather(self):
+        OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
+        OPENWEATHER_LOCATIONID = self.config.get('main', 'OPENWEATHER_LOCATIONID')
         temperature = json.load(
             urllib.request.urlopen(
-                'http://api.openweathermap.org/data/2.5/weather?id='+config.OPENWEATHER_LOCATIONID+'&APPID='
-                + config.OPENWEATHER_APIKEY + '&units=metric'))
+                'http://api.openweathermap.org/data/2.5/weather?id='+OPENWEATHER_LOCATIONID+'&APPID='
+                + OPENWEATHER_APIKEY + '&units=metric'))
         t = temperature['main']['temp']
         resultstring = 'Master, Temperatur ist bei ' + str(
             t) + ' Grad Celsius'
@@ -369,10 +388,13 @@ class Parser:
 
     def checkWeatherForecast(self):
         #TODO this doesn't work on the chatbot yet, only dashboard?
+        OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
+        OPENWEATHER_LOCATIONID = self.config.get('main', 'OPENWEATHER_LOCATIONID')
+        
         completeforecast = json.load(
             urllib.request.urlopen(
-                'http://api.openweathermap.org/data/2.5/forecast?id='+config.OPENWEATHER_LOCATIONID+'&APPID='
-                + config.OPENWEATHER_APIKEY + '&units=metric'))
+                'http://api.openweathermap.org/data/2.5/forecast?id='+OPENWEATHER_LOCATIONID+'&APPID='
+                + OPENWEATHER_APIKEY + '&units=metric'))
         #print 'Forecast: ' + json.dumps(completeforecast)
         forecast = []
         for n in range(0, 7):

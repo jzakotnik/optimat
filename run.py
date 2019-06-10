@@ -7,18 +7,22 @@ import datetime
 import optimatconfig as config
 import os
 import logging
-
+from configparser import ConfigParser
 
 logging.basicConfig(filename='optimat.log', level=logging.INFO)
+config = ConfigParser()
+config.read('config.ini')
 
-updater = Updater(token=config.TELEGRAM_BOT_TOKEN)
+
+updater = Updater(token=config.get('main', 'TELEGRAM_BOT_TOKEN'))
 dispatcher = updater.dispatcher
 p = parser.Parser()
 
 
 def optimatHandler(update, context):
     result = p.parseInput(context.message.text)
-    updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
+    updater.bot.sendMessage(config.get(
+        'main', 'MY_TELEGRAM_ID'), result['reply'])
 
 
 optimat = MessageHandler(Filters.text, optimatHandler)
@@ -42,14 +46,16 @@ def checkScheduler():
             datetime.time(7, 59, 55), datetime.time(7, 59, 57),
             datetime.datetime.now().time()):
         result = p.parseInput('verkehr kita')
-        updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
+        updater.bot.sendMessage(config.get(
+            'main', 'TELEGRAM_BOT_TOKEN'), result['reply'])
 
     if timeInRange(
         # TODO fix the hardcoded message for the sbahn notification (is it too late?)
             datetime.time(17, 15, 55), datetime.time(17, 15, 57),
             datetime.datetime.now().time()):
         result = p.parseInput('sbahn')
-        updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
+        updater.bot.sendMessage(config.get(
+            'main', 'TELEGRAM_BOT_TOKEN'), result['reply'])
 
 
 logging.info('Listening...')
