@@ -1,4 +1,5 @@
 ﻿TELEGRAM_BOT_TOKEN = 'sample'
+MY_TELEGRAM_ID = 'my telegram ID'
 MY_TELEGRAM_ID = 'sample'
 GOOGLE_API_KEY = 'sample'
 MAIL_SENDER = "sample"

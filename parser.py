@@ -14,7 +14,7 @@ import email
 import feedparser
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from email import Encoders
+from email import encoders
 from email.message import Message
 from email.mime.audio import MIMEAudio
 from email.mime.base import MIMEBase
@@ -38,7 +38,6 @@ from apiclient.discovery import build
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 from apiclient.discovery import build
-import urllib
 import datetime
 
 
@@ -55,7 +54,7 @@ class Parser:
             password=config.FRITZ_PASSWORD)
         fritz = f.call_action('X_AVM-DE_OnTel', 'GetCallList')
         print ("This is the URL for the callers, including session token for now: " + fritz["NewCallListURL"])
-        xmlhandle = urllib2.urlopen(fritz["NewCallListURL"])
+        xmlhandle = urllib.urlopen(fritz["NewCallListURL"])
         xmlresult = xmlhandle.read()
         xmlhandle.close()
         root = ET.fromstring(xmlresult)
@@ -124,11 +123,11 @@ class Parser:
     def getKitaTraffic(self):
         #check google maps for the traffic to kindergarten
         data_to = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+config.GOOGLETRAFFIC_SOURCE+'&destinations='+config.GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
                 + config.GOOGLE_API_KEY))
         data_back = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+config.GOOGLETRAFFIC_DESTINATION+'&destinations='+config.GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
                 + config.GOOGLE_API_KEY))
         resultstring = "Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
@@ -143,7 +142,7 @@ class Parser:
     def getFuelPrice(self):
         #check fuel price in my neighbourhood
         fuelprice = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'https://creativecommons.tankerkoenig.de/json/prices.php?ids='+config.TANKEN_LOCATION+'&apikey='
                 + config.TANKEN_APIKEY))
         resultstring = ''
@@ -225,7 +224,7 @@ class Parser:
 
     def downloadFilesNAS(self, myfile, method='download'):
         authString = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'http://' + config.NAS_IP +
                 ':5000/webapi/auth.cgi?api=SYNO.API.Auth&version=6&method=login&account='
                 + config.NAS_USER + '&passwd=' + config.NAS_PASSWORD +
@@ -256,7 +255,7 @@ class Parser:
 
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(open(newpath, 'rb').read())
-        Encoders.encode_base64(part)
+        encoders.encode_base64(part)
         part.add_header('Content-Disposition',
                         'attachment; filename="%s"' % os.path.basename(myfile))
         msg.attach(part)
@@ -273,7 +272,7 @@ class Parser:
 
     def getSBahnTraffic(self):
         result = "Master, versuche die Verbindungen zu suchen.."
-        result.encode('utf-8')
+        #result.encode('utf-8')
         #TODO this is harcoded to Frankfurt West
         page = requests.get(
             'http://reiseauskunft.bahn.de/bin/bhftafel.exe/dn?ld=15079&rt=1&input=Frankfurt(Main)West%238002042&boardType=dep&time=actual&productsFilter=00001&REQTrain_name=4&start=yes&'
@@ -281,6 +280,7 @@ class Parser:
         tree = html.fromstring(page.content)
         result = "Master, das sind die naechsten Verbindungen der S4 ab Westbahnhof:\n"
         #TODO when this is available as DB OpenData, change to API
+        #TODO something is wrong with the encoding here
         for x in range(0, 5):
             traintime = tree.xpath(
                 '//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
@@ -288,14 +288,14 @@ class Parser:
                 '//*[@id="journeyRow_' + str(x) + '"]/td[6]//span/text()')
             traintimestring = ''.join(traintime).encode('utf-8')
             delaytimestring = ''.join(delay).encode('utf-8')
-            result = result + "Zug um: " + traintimestring + " mit " + delaytimestring + "\n"
+            result = result + "Zug um: " + str(traintimestring) + " mit " + str(delaytimestring) + "\n"
         return {'reply': result}
 
     def getBitcoinBalance(self):
         result = "Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
         result.encode('utf-8')
         balance = json.load(
-            urllib2.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
+            urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
                             config.BLOCKIO_APIKEY))
         result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
         return {'reply': result}
@@ -305,7 +305,7 @@ class Parser:
         amount = str(tokens[1])
         target = config.BLOCKIO_TARGETWALLET  #hardcoded for now
         transaction_result = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'https://block.io/api/v2/withdraw/?api_key=' +
                 config.BLOCKIO_APIKEY + '&amounts=' + amount +
                 '&to_addresses=' + target + '&pin=' + config.BLOCKIO_PIN))
@@ -360,7 +360,7 @@ class Parser:
 
     def checkWeather(self):
         temperature = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'http://api.openweathermap.org/data/2.5/weather?id='+config.OPENWEATHER_LOCATIONID+'&APPID='
                 + config.OPENWEATHER_APIKEY + '&units=metric'))
         t = temperature['main']['temp']
@@ -371,7 +371,7 @@ class Parser:
     def checkWeatherForecast(self):
         #TODO this doesn't work on the chatbot yet, only dashboard?
         completeforecast = json.load(
-            urllib2.urlopen(
+            urllib.request.urlopen(
                 'http://api.openweathermap.org/data/2.5/forecast?id='+config.OPENWEATHER_LOCATIONID+'&APPID='
                 + config.OPENWEATHER_APIKEY + '&units=metric'))
         #print 'Forecast: ' + json.dumps(completeforecast)
@@ -473,6 +473,7 @@ class Parser:
     def parseInput(self, request):
         #default reply if none of the keywords was used
         result = {'reply': "Master, ich weiss nicht was Du meinst!"}
+        logging.info("Got request: " + str(request))
         
         #is it a file to be emailed from my NAS
         if str.lower(request).find("send") >= 0:

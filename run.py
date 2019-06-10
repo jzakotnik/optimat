@@ -1,6 +1,7 @@
 
 from telegram.ext import MessageHandler, Filters, Updater
-# import parser
+
+import parser
 import time
 import datetime
 import optimatconfig as config
@@ -8,22 +9,22 @@ import os
 import logging
 
 
-logging.basicConfig(filename='optimat.log', level=logging.DEBUG)
+logging.basicConfig(filename='optimat.log', level=logging.INFO)
 
 updater = Updater(token=config.TELEGRAM_BOT_TOKEN)
 dispatcher = updater.dispatcher
+p = parser.Parser()
 
 
-def echo(update, context):
-    if (context.message.chat.username == 'jurejure'):
-        context.message.reply_text(context.message.text)
+def optimatHandler(update, context):
+    result = p.parseInput(context.message.text)
+    updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
 
 
-echo_handler = MessageHandler(Filters.text, echo)
-dispatcher.add_handler(echo_handler)
+optimat = MessageHandler(Filters.text, optimatHandler)
+dispatcher.add_handler(optimat)
 
 updater.start_polling()
-# p = parser.Parser()
 
 
 def timeInRange(start, end, x):
@@ -34,19 +35,6 @@ def timeInRange(start, end, x):
         return start <= x or x <= end
 
 
-def handle(msg):
-    inputmessage = msg['text'].encode('ascii')
-    result = p.parseInput(inputmessage)
-    if 'keyboard' in result.keys():  # custom reply keyboard specified, this is for the psycho tracker
-        show_keyboard = {'keyboard': result['keyboard']}
-        bot.sendMessage(
-            config.MY_TELEGRAM_ID, result['reply'],
-            reply_markup=show_keyboard)  # send whatever
-    else:
-        bot.sendMessage(config.MY_TELEGRAM_ID,
-                        result['reply'])  # send whatever
-
-
 def checkScheduler():
     # TODO this is all too harcoded, refactor
     # send Traffic at 8:00
@@ -54,29 +42,27 @@ def checkScheduler():
             datetime.time(7, 59, 55), datetime.time(7, 59, 57),
             datetime.datetime.now().time()):
         result = p.parseInput('verkehr kita')
-        print(bot.sendMessage(config.MY_TELEGRAM_ID,
-                              result['reply']))  # send verkehr
+        updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
 
     if timeInRange(
         # TODO fix the hardcoded message for the sbahn notification (is it too late?)
             datetime.time(17, 15, 55), datetime.time(17, 15, 57),
             datetime.datetime.now().time()):
         result = p.parseInput('sbahn')
-        print(bot.sendMessage(config.MY_TELEGRAM_ID,
-                              result['reply']))  # send sbahn
+        updater.bot.sendMessage(config.MY_TELEGRAM_ID, result['reply'])
 
 
 logging.info('Listening...')
 secondCounter = 295  # when starting, trigger update dashboard after 5sec
 logging.info('Optimat started...')
 
-# while 1:
-#    time.sleep(1)
-#    checkScheduler()  # if there are any scheduled bot messages, trigger them here
-#    secondCounter += 1
-# if (secondCounter >= 300):
-#    try:
-#        p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
-#    except Exception:
-#        print('Ohoh, something went wrong when updating the dashboard...')
-#   secondCounter = 0
+while 1:
+    time.sleep(1)
+    checkScheduler()  # if there are any scheduled bot messages, trigger them here
+    secondCounter += 1
+if (secondCounter >= 300):
+    try:
+        p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
+    except Exception:
+        logging.info('Could not updated dashboard')
+    secondCounter = 0
