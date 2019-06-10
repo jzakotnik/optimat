@@ -146,7 +146,7 @@ class Parser:
                     '&destinations='+GOOGLETRAFFIC_SOURCE +
                         '&departure_time=now&mode=driving&language=de-DE&key='
                 + GOOGLE_API_KEY)
-        logging.info(str(traffic_to)))
+        logging.info(str(traffic_to))
         logging.info(str(traffic_back))
         data_to=json.load(str(traffic_to))
         data_back=json.load(str(traffic_back))
