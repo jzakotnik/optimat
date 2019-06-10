@@ -23,6 +23,7 @@ Currently it does
 # Installation
 * Install python and virtualenv
 * Install requirements.txt
-
+* On Raspberry, you need a cffi dependency: sudo apt-get update
+$ sudo apt-get install libffi-dev
 
 
