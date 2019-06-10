@@ -413,9 +413,9 @@ class Parser:
 
     def saveTopic(self, inputmessage):
         try:
-            print ("Update the dashboard..")
+            logging.info("Setting a new topic")
         except Exception:
-            print ('Ohoh, something went wrong when updating the dashboard...')
+            logging.exception("Save Topic went wrong")
 
     def updateDashboard(self, displayFuel=False):
         try:
