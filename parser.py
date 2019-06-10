@@ -135,14 +135,16 @@ class Parser:
         GOOGLE_API_KEY = self.config.get('main', 'GOOGLE_API_KEY')
         GOOGLETRAFFIC_SOURCE = self.config.get('main', 'GOOGLETRAFFIC_SOURCE')
         GOOGLETRAFFIC_DESTINATION = self.config.get('main', 'GOOGLETRAFFIC_DESTINATION')
-        data_to = json.load(
-            urllib.request.urlopen(
+        traffic_to = urllib.request.urlopen(
                 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE+'&destinations='+GOOGLETRAFFIC_DESTINATION+'&departure_time=now&mode=driving&language=de-DE&key='
-                + GOOGLE_API_KEY))
-        data_back = json.load(
-            urllib.request.urlopen(
+                + GOOGLE_API_KEY)
+        traffic_back = urllib.request.urlopen(
                 'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION+'&destinations='+GOOGLETRAFFIC_SOURCE+'&departure_time=now&mode=driving&language=de-DE&key='
-                + GOOGLE_API_KEY))
+                + GOOGLE_API_KEY)
+        logging.info(traffic_to)
+        logging.info(traffic_back)
+        data_to = json.load(traffic_to)
+        data_back = json.load(traffic_back)
         resultstring = "Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
         
         return {
