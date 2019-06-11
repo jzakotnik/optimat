@@ -125,9 +125,9 @@ class Parser:
                 result = result + resulttime + '\n' + i['summary'] + '\n'
                 calitem[calcounter] = resulttime + ': ' + i['summary']
                 calcounter = calcounter + 1
-            print ('Got everything together from calendar service, byebye')
             return {'reply': result, 'calendarlist': calitem}
         except:
+            logging.exception("Exception when retrieving calendar data.")
             return {'reply': 'did not work', 'calendarlist': calitem}
 
     def getKitaTraffic(self):

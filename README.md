@@ -18,7 +18,7 @@ Currently it does
 * Local weather
 * Retrieving news from Spiegel Online Feed
 
-![Telegram chat example](doc/sample_chat.jpg?raw=true "Telegram chat example")
+
 ![Dashboard example](doc/sample_dashboard.jpg?raw=true "Dashboard example")
 
 # Installation
@@ -40,6 +40,8 @@ Currently it does
 * Setup config file
 * python3 run.py
 * Got to telegram and send "verkehr kita"
+
+![Telegram chat example](doc/sample_chat.jpg?raw=true "Telegram chat example")
 
 
 
