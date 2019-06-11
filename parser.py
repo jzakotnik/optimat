@@ -137,23 +137,23 @@ class Parser:
         GOOGLETRAFFIC_DESTINATION = self.config.get(
             'main', 'GOOGLETRAFFIC_DESTINATION')
         traffic_to = urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE +
-                    '&destinations='+GOOGLETRAFFIC_DESTINATION +
-                        '&departure_time=now&mode=driving&language=de-DE&key='
-                + GOOGLE_API_KEY)
+            'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_SOURCE +
+            '&destinations='+GOOGLETRAFFIC_DESTINATION +
+            '&departure_time=now&mode=driving&language=de-DE&key='
+            + GOOGLE_API_KEY)
         traffic_back = urllib.request.urlopen(
-                'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION +
-                    '&destinations='+GOOGLETRAFFIC_SOURCE +
-                        '&departure_time=now&mode=driving&language=de-DE&key='
-                + GOOGLE_API_KEY)
+            'https://maps.googleapis.com/maps/api/distancematrix/json?origins='+GOOGLETRAFFIC_DESTINATION +
+            '&destinations='+GOOGLETRAFFIC_SOURCE +
+            '&departure_time=now&mode=driving&language=de-DE&key='
+            + GOOGLE_API_KEY)
         logging.info("Resulting traffic to destionation: " + str(traffic_to))
         logging.info("Resulting traffic to source: " + str(traffic_back))
         data_to = json.loads(traffic_to.read().decode('UTF-8'))
         data_back = json.loads(traffic_back.read().decode('UTF-8'))
         resultstring = "Master, hier aktueller Verkehr zur Kita: " + \
             data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + \
-                ", Rueckweg: " + \
-                    data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
+            ", Rueckweg: " + \
+            data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
 
         return {
             'reply':
@@ -388,45 +388,47 @@ class Parser:
         OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
         OPENWEATHER_LOCATIONID = self.config.get(
             'main', 'OPENWEATHER_LOCATIONID')
-        r = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?id='+OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric'))
-        temperature=json.loads(r.read().decode('UTF-8'))
-        t=temperature['main']['temp']
-        resultstring='Master, Temperatur ist bei ' + str(
+        r = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?id=' +
+                                   OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric')
+        temperature = json.loads(r.read().decode('UTF-8'))
+        t = temperature['main']['temp']
+        resultstring = 'Master, Temperatur ist bei ' + str(
             t) + ' Grad Celsius'
         return {'reply': resultstring, 'onlyTemp': str(t)}
 
     def checkWeatherForecast(self):
         # TODO this doesn't work on the chatbot yet, only dashboard?
-        OPENWEATHER_APIKEY=self.config.get('main', 'OPENWEATHER_APIKEY')
-        OPENWEATHER_LOCATIONID=self.config.get(
+        OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
+        OPENWEATHER_LOCATIONID = self.config.get(
             'main', 'OPENWEATHER_LOCATIONID')
 
-        r=urllib.request.urlopen('http://api.openweathermap.org/data/2.5/forecast?id='+OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric'))
-        completeforecast=json.loads(r.read().decode('UTF-8'))
+        r = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/forecast?id=' +
+                                   OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric')
+        completeforecast = json.loads(r.read().decode('UTF-8'))
         # print 'Forecast: ' + json.dumps(completeforecast)
-        forecast=[]
+        forecast = []
         for n in range(0, 7):
             # print 'getting time..' + str(completeforecast['list'][n]['dt'])
-            time=datetime.datetime.fromtimestamp(
+            time = datetime.datetime.fromtimestamp(
                 completeforecast['list'][n]['dt'])
-            temperature=completeforecast['list'][n]['main']['temp']
+            temperature = completeforecast['list'][n]['main']['temp']
             # print 'getting icon....' + str(completeforecast['list'][n])
-            icon='http://openweathermap.org/img/w/' + \
+            icon = 'http://openweathermap.org/img/w/' + \
                 completeforecast['list'][n]['weather'][0]['icon'] + '.png'
             # print 'Got time ' + str(time) + ' and forecast ' + str(temperature) + ' and icon  ' + str(icon)
             forecast.append((time.strftime('%H:%M'), str(int(temperature)),
                              str(icon)))
-        resultstring='Master, Temperatur in Koenigstein ist bei Grad Celsius'
+        resultstring = 'Master, Temperatur in Koenigstein ist bei Grad Celsius'
         return {'reply': resultstring, 'onlyForecast': forecast}
 
     def checkNews(self):
         logging.info('Check news started...')
 
-        f=feedparser.parse(
+        f = feedparser.parse(
             'http://www.spiegel.de/schlagzeilen/tops/index.rss')
         logging.info('Executed rss feed parse')
         # collect headlines
-        newsitem=[
+        newsitem = [
             'No headlines right now..', 'No headlines right now..',
             'No headlines right now..', 'No headlines right now..',
             'No headlines right now..'
@@ -434,8 +436,8 @@ class Parser:
         logging.info('Iterating over news')
         for n in range(0, 5):
             logging.info('This is the news' + f.entries[n]['title'])
-            newsitem[n]=f.entries[n]['title']
-        resultstring='Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
+            newsitem[n] = f.entries[n]['title']
+        resultstring = 'Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
             newsitem)
         logging.info(
             'Executed rss feed parse ,this is the result' + resultstring)
@@ -451,52 +453,51 @@ class Parser:
         try:
             print ("Update the dashboard..")
             # initial data before the API call
-            dashdata={
+            dashdata = {
                 'traffic': '16m',
                 'fuel': '1.45',
                 'temperature': '18 C',
                 'miner': '50 C'
             }
-            dashdata['tel']=[
+            dashdata['tel'] = [
                 'Telefon A', 'Telefon B', 'Telefon C', 'Telefon D', 'Telefon E'
             ]
-            dashdata['news']=['News1', 'News2', 'News C', 'News D', 'News E']
-            dashdata['calendar']=[
+            dashdata['news'] = ['News1', 'News2', 'News C', 'News D', 'News E']
+            dashdata['calendar'] = [
                 'Cal 1', 'Cal 2', 'Cal C', 'Cal  D', 'Cal E'
             ]
-            dashdata['forecast']=[('t', '12', 'ico')]
-            dashdata['miner']='0'
-            dashdata['reward']='0'
+            dashdata['forecast'] = [('t', '12', 'ico')]
+            dashdata['miner'] = '0'
+            dashdata['reward'] = '0'
 
             # retrieved real data starts here:
-            traffic=self.getKitaTraffic()
-            dashdata['traffic']=str(traffic['toDuration'] / 60) + 'min'
+            traffic = self.getKitaTraffic()
+            dashdata['traffic'] = str(traffic['toDuration'] / 60) + 'min'
 
-            weather=self.checkWeather()
-            dashdata['temperature']=str(
+            weather = self.checkWeather()
+            dashdata['temperature'] = str(
                 int(round(float(weather['onlyTemp'])))) + ' C'
 
-            forecast=self.checkWeatherForecast()
-            dashdata['forecast']=forecast['onlyForecast']
+            forecast = self.checkWeatherForecast()
+            dashdata['forecast'] = forecast['onlyForecast']
 
-            news=self.checkNews(
+            news = self.checkNews(
             )['newslist']  # news = list of news items from Spiegel online feed
-            dashdata['news']=news
+            dashdata['news'] = news
 
-            tel=self.getPhoneList()['tellist']
-            dashdata['tel']=tel
+            tel = self.getPhoneList()['tellist']
+            dashdata['tel'] = tel
 
-            cal=self.getCalendarEvents()
-            dashdata['calendar']=cal['calendarlist']
+            cal = self.getCalendarEvents()
+            dashdata['calendar'] = cal['calendarlist']
 
-            fuel=self.getFuelPrice()
-            dashdata['fuel']=str(fuel['fuelPrice']) + 'EUR'
+            fuel = self.getFuelPrice()
+            dashdata['fuel'] = str(fuel['fuelPrice']) + 'EUR'
 
             # TODO this could be routed to any dashboard, not only the local one
             print (requests.post(
                 'http://localhost:5000/dashboard', json=dashdata))
 
-            
         except Exception:
             print ('Ohoh, something went wrong when updating the dashboard...')
 
@@ -504,7 +505,7 @@ class Parser:
         # default reply if none of the keywords was used
         result = {'reply': "Master, ich weiss nicht was Du meinst!"}
         logging.info("Got request: " + str(request))
-        
+
         # is it a file to be emailed from my NAS
         if str.lower(request).find("send") >= 0:
             print ("file detected...")
