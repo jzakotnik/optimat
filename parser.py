@@ -148,9 +148,12 @@ class Parser:
                 + GOOGLE_API_KEY)
         logging.info("Resulting traffic to destionation: " + str(traffic_to))
         logging.info("Resulting traffic to source: " + str(traffic_back))
-        data_to=json.loads(traffic_to.read().decode('UTF-8'))
-        data_back=json.loads(traffic_back.read().decode('UTF-8'))
-        resultstring="Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
+        data_to = json.loads(traffic_to.read().decode('UTF-8'))
+        data_back = json.loads(traffic_back.read().decode('UTF-8'))
+        resultstring = "Master, hier aktueller Verkehr zur Kita: " + \
+            data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + \
+                ", Rueckweg: " + \
+                    data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
 
         return {
             'reply':
@@ -163,11 +166,12 @@ class Parser:
         # check fuel price in my neighbourhood
         TANKEN_APIKEY = self.config.get('main', 'TANKEN_APIKEY')
         TANKEN_LOCATION = self.config.get('main', 'TANKEN_LOCATION')
-        r = urllib.request.urlopen('https://creativecommons.tankerkoenig.de/json/prices.php?ids=' + TANKEN_LOCATION+'&apikey=' + TANKEN_APIKEY)
+        r = urllib.request.urlopen(
+            'https://creativecommons.tankerkoenig.de/json/prices.php?ids=' + TANKEN_LOCATION+'&apikey=' + TANKEN_APIKEY)
         fuelprice = json.loads(r.read().decode('UTF-8'))
-        resultstring=''
+        resultstring = ''
         try:
-            resultstring="Master, hier der Tankpreis E10 bei Aral: " + str(
+            resultstring = "Master, hier der Tankpreis E10 bei Aral: " + str(
                 fuelprice['prices'][TANKEN_LOCATION]
                 ['e10'])
             return {
@@ -179,7 +183,6 @@ class Parser:
             }
         except Exception:
             return {'reply': 'Fuel station is closed', 'fuelPrice': 'N/A'}
-
 
     def startAlarm(self):
         # this starts motion detection for a connected webcam
@@ -242,39 +245,39 @@ class Parser:
                 ':5000/webapi/auth.cgi?api=SYNO.API.Auth&version=6&method=login&account='
                 + NAS_USER + '&passwd=' + NAS_PASSWORD +
                 '&session=FileStation&format=sid'))
-        sidToken=authString['data']['sid']
-        downloadedFile=urllib.urlretrieve(
+        sidToken = authString['data']['sid']
+        downloadedFile = urllib.urlretrieve(
             'http://' + NAS_IP +
-            ':5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path='+NAS_BASEFOLDER+
+            ':5000/webapi/entry.cgi?api=SYNO.FileStation.Download&version=2&method=download&path='+NAS_BASEFOLDER +
             + myfile + '&mode=download&_sid=' + sidToken,
             'filecache/' + ntpath.basename(myfile))
         # extract file from whole path
-        newpath='filecache/' + ntpath.basename(myfile)
+        newpath = 'filecache/' + ntpath.basename(myfile)
         return newpath
 
     def sendFileViaEmail(self, myfile):
-        newpath=self.downloadFilesNAS(
+        newpath = self.downloadFilesNAS(
             myfile)  # returns the location of the file locally
-        mail_user=self.config.get('main', 'MAIL_SENDER')
-        mail_pwd=self.config.get('main', 'MAIL_PASSWORD')
-        mail_to=self.config.get('main', 'MAIL_RECIPIENT')
-        MAIL_SERVER=self.config.get('main', 'MAIL_SERVER')
-        msg=MIMEMultipart()
+        mail_user = self.config.get('main', 'MAIL_SENDER')
+        mail_pwd = self.config.get('main', 'MAIL_PASSWORD')
+        mail_to = self.config.get('main', 'MAIL_RECIPIENT')
+        MAIL_SERVER = self.config.get('main', 'MAIL_SERVER')
+        msg = MIMEMultipart()
 
-        msg['From']=mail_user
-        msg['To']=mail_to
-        msg['Subject']='Mail from Optimat for you..'
+        msg['From'] = mail_user
+        msg['To'] = mail_to
+        msg['Subject'] = 'Mail from Optimat for you..'
 
         msg.attach(MIMEText("Hello Master! Hier das File.."))
 
-        part=MIMEBase('application', 'octet-stream')
+        part = MIMEBase('application', 'octet-stream')
         part.set_payload(open(newpath, 'rb').read())
         encoders.encode_base64(part)
         part.add_header('Content-Disposition',
                         'attachment; filename="%s"' % os.path.basename(myfile))
         msg.attach(part)
 
-        mailServer=smtplib.SMTP(MAIL_SERVER, 587)
+        mailServer = smtplib.SMTP(MAIL_SERVER, 587)
         mailServer.ehlo()
         mailServer.starttls()
         mailServer.ehlo()
@@ -285,42 +288,46 @@ class Parser:
         return
 
     def getSBahnTraffic(self):
-        result="Master, versuche die Verbindungen zu suchen.."
+        result = "Master, versuche die Verbindungen zu suchen.."
         # result.encode('utf-8')
         # TODO this is harcoded to Frankfurt West
-        page=requests.get(
+        page = requests.get(
             'http://reiseauskunft.bahn.de/bin/bhftafel.exe/dn?ld=15079&rt=1&input=Frankfurt(Main)West%238002042&boardType=dep&time=actual&productsFilter=00001&REQTrain_name=4&start=yes&'
         )
-        tree=html.fromstring(page.content)
-        result="Master, das sind die naechsten Verbindungen der S4 ab Westbahnhof:\n"
+        tree = html.fromstring(page.content)
+        result = "Master, das sind die naechsten Verbindungen der S4 ab Westbahnhof:\n"
         # TODO when this is available as DB OpenData, change to API
         # TODO something is wrong with the encoding here
         for x in range(0, 5):
-            traintime=tree.xpath('//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
-            delay=tree.xpath(
+            traintime = tree.xpath(
+                '//*[@id="journeyRow_' + str(x) + '"]/td[1]/text()')
+            delay = tree.xpath(
                 '//*[@id="journeyRow_' + str(x) + '"]/td[6]//span/text()')
-            traintimestring=''.join(traintime).encode('utf-8')
-            delaytimestring=''.join(delay).encode('utf-8')
-            result=result + "Zug um: " + str(traintimestring) + " mit " + str(delaytimestring) + "\n"
+            traintimestring = ''.join(traintime).encode('utf-8')
+            delaytimestring = ''.join(delay).encode('utf-8')
+            result = result + "Zug um: " + \
+                str(traintimestring) + " mit " + str(delaytimestring) + "\n"
         return {'reply': result}
 
     def getBitcoinBalance(self):
-        result="Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
+        result = "Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
         result.encode('utf-8')
-        BLOCKIO_APIKEY=self.config.get('main', 'BLOCKIO_APIKEY')
-        r=urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' + BLOCKIO_APIKEY)
+        BLOCKIO_APIKEY = self.config.get('main', 'BLOCKIO_APIKEY')
+        r = urllib.request.urlopen(
+            'https://block.io/api/v2/get_balance/?api_key=' + BLOCKIO_APIKEY)
         balance = json.loads(r.read().decode('UTF-8'))
-        result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
+        result = result + balance['data']['available_balance'] + \
+            ', unconfirmed: ' + balance['data']['pending_received_balance']
         return {'reply': result}
 
     def transferBitcoins(self, request):
         BLOCKIO_APIKEY = self.config.get('main', 'BLOCKIO_APIKEY')
         BLOCKIO_TARGETWALLET = self.config.get('main', 'BLOCKIO_TARGETWALLET')
         BLOCKIO_PIN = self.config.get('main', 'BLOCKIO_PIN')
-        
+
         tokens = request.split(' ')
         amount = str(tokens[1])
-        target = BLOCKIO_TARGETWALLET  #hardcoded for now
+        target = BLOCKIO_TARGETWALLET  # hardcoded for now
         transaction_result = json.load(
             urllib.request.urlopen(
                 'https://block.io/api/v2/withdraw/?api_key=' +
@@ -370,7 +377,7 @@ class Parser:
     def saveStatus(self, inputstatus):
         # this saves the current psycho status to a local couchdb
         COUCHDB_SERVER = self.config.get('main', 'COUCHDB_SERVER')
-        
+
         server = couchdb.Server(
             url='http://' + COUCHDB_SERVER + ':5984/')
         db = server['feely']
@@ -379,48 +386,47 @@ class Parser:
 
     def checkWeather(self):
         OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
-        OPENWEATHER_LOCATIONID = self.config.get('main', 'OPENWEATHER_LOCATIONID')
-        temperature = json.load(
-            urllib.request.urlopen(
-                'http://api.openweathermap.org/data/2.5/weather?id='+OPENWEATHER_LOCATIONID+'&APPID='
-                + OPENWEATHER_APIKEY + '&units=metric'))
-        t = temperature['main']['temp']
-        resultstring = 'Master, Temperatur ist bei ' + str(
+        OPENWEATHER_LOCATIONID = self.config.get(
+            'main', 'OPENWEATHER_LOCATIONID')
+        r = urllib.request.urlopen('http://api.openweathermap.org/data/2.5/weather?id='+OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric'))
+        temperature=json.loads(r.read().decode('UTF-8'))
+        t=temperature['main']['temp']
+        resultstring='Master, Temperatur ist bei ' + str(
             t) + ' Grad Celsius'
         return {'reply': resultstring, 'onlyTemp': str(t)}
 
     def checkWeatherForecast(self):
         # TODO this doesn't work on the chatbot yet, only dashboard?
-        OPENWEATHER_APIKEY = self.config.get('main', 'OPENWEATHER_APIKEY')
-        OPENWEATHER_LOCATIONID = self.config.get('main', 'OPENWEATHER_LOCATIONID')
-        
-        completeforecast = json.load(
-            urllib.request.urlopen(
-                'http://api.openweathermap.org/data/2.5/forecast?id='+OPENWEATHER_LOCATIONID+'&APPID='
-                + OPENWEATHER_APIKEY + '&units=metric'))
+        OPENWEATHER_APIKEY=self.config.get('main', 'OPENWEATHER_APIKEY')
+        OPENWEATHER_LOCATIONID=self.config.get(
+            'main', 'OPENWEATHER_LOCATIONID')
+
+        r=urllib.request.urlopen('http://api.openweathermap.org/data/2.5/forecast?id='+OPENWEATHER_LOCATIONID+'&APPID=' + OPENWEATHER_APIKEY + '&units=metric'))
+        completeforecast=json.loads(r.read().decode('UTF-8'))
         # print 'Forecast: ' + json.dumps(completeforecast)
-        forecast = []
+        forecast=[]
         for n in range(0, 7):
             # print 'getting time..' + str(completeforecast['list'][n]['dt'])
-            time = datetime.datetime.fromtimestamp(
+            time=datetime.datetime.fromtimestamp(
                 completeforecast['list'][n]['dt'])
-            temperature = completeforecast['list'][n]['main']['temp']
+            temperature=completeforecast['list'][n]['main']['temp']
             # print 'getting icon....' + str(completeforecast['list'][n])
-            icon = 'http://openweathermap.org/img/w/' + completeforecast['list'][n]['weather'][0]['icon'] + '.png'
+            icon='http://openweathermap.org/img/w/' + \
+                completeforecast['list'][n]['weather'][0]['icon'] + '.png'
             # print 'Got time ' + str(time) + ' and forecast ' + str(temperature) + ' and icon  ' + str(icon)
             forecast.append((time.strftime('%H:%M'), str(int(temperature)),
                              str(icon)))
-        resultstring = 'Master, Temperatur in Koenigstein ist bei Grad Celsius'
+        resultstring='Master, Temperatur in Koenigstein ist bei Grad Celsius'
         return {'reply': resultstring, 'onlyForecast': forecast}
 
     def checkNews(self):
         logging.info('Check news started...')
 
-        f = feedparser.parse(
+        f=feedparser.parse(
             'http://www.spiegel.de/schlagzeilen/tops/index.rss')
         logging.info('Executed rss feed parse')
         # collect headlines
-        newsitem = [
+        newsitem=[
             'No headlines right now..', 'No headlines right now..',
             'No headlines right now..', 'No headlines right now..',
             'No headlines right now..'
@@ -428,8 +434,8 @@ class Parser:
         logging.info('Iterating over news')
         for n in range(0, 5):
             logging.info('This is the news' + f.entries[n]['title'])
-            newsitem[n] = f.entries[n]['title']
-        resultstring = 'Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
+            newsitem[n]=f.entries[n]['title']
+        resultstring='Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
             newsitem)
         logging.info(
             'Executed rss feed parse ,this is the result' + resultstring)
@@ -445,46 +451,46 @@ class Parser:
         try:
             print ("Update the dashboard..")
             # initial data before the API call
-            dashdata = {
+            dashdata={
                 'traffic': '16m',
                 'fuel': '1.45',
                 'temperature': '18 C',
                 'miner': '50 C'
             }
-            dashdata['tel'] = [
+            dashdata['tel']=[
                 'Telefon A', 'Telefon B', 'Telefon C', 'Telefon D', 'Telefon E'
             ]
-            dashdata['news'] = ['News1', 'News2', 'News C', 'News D', 'News E']
-            dashdata['calendar'] = [
+            dashdata['news']=['News1', 'News2', 'News C', 'News D', 'News E']
+            dashdata['calendar']=[
                 'Cal 1', 'Cal 2', 'Cal C', 'Cal  D', 'Cal E'
             ]
-            dashdata['forecast'] = [('t', '12', 'ico')]
-            dashdata['miner'] = '0'
-            dashdata['reward'] = '0'
-            
-            # retrieved real data starts here:
-            traffic = self.getKitaTraffic()
-            dashdata['traffic'] = str(traffic['toDuration'] / 60) + 'min'
+            dashdata['forecast']=[('t', '12', 'ico')]
+            dashdata['miner']='0'
+            dashdata['reward']='0'
 
-            weather = self.checkWeather()
-            dashdata['temperature'] = str(
+            # retrieved real data starts here:
+            traffic=self.getKitaTraffic()
+            dashdata['traffic']=str(traffic['toDuration'] / 60) + 'min'
+
+            weather=self.checkWeather()
+            dashdata['temperature']=str(
                 int(round(float(weather['onlyTemp'])))) + ' C'
 
-            forecast = self.checkWeatherForecast()
-            dashdata['forecast'] = forecast['onlyForecast']
+            forecast=self.checkWeatherForecast()
+            dashdata['forecast']=forecast['onlyForecast']
 
-            news = self.checkNews(
+            news=self.checkNews(
             )['newslist']  # news = list of news items from Spiegel online feed
-            dashdata['news'] = news
+            dashdata['news']=news
 
-            tel = self.getPhoneList()['tellist']
-            dashdata['tel'] = tel
+            tel=self.getPhoneList()['tellist']
+            dashdata['tel']=tel
 
-            cal = self.getCalendarEvents()
-            dashdata['calendar'] = cal['calendarlist']
-            
-            fuel = self.getFuelPrice()
-            dashdata['fuel'] = str(fuel['fuelPrice']) + 'EUR'
+            cal=self.getCalendarEvents()
+            dashdata['calendar']=cal['calendarlist']
+
+            fuel=self.getFuelPrice()
+            dashdata['fuel']=str(fuel['fuelPrice']) + 'EUR'
 
             # TODO this could be routed to any dashboard, not only the local one
             print (requests.post(
