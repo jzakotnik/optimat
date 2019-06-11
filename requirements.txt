@@ -10,6 +10,7 @@ configparser==3.7.4
 CouchDB==1.2
 cryptography==2.7
 feedparser==5.2.1
+Flask==1.0.3
 fritzconnection==0.6.5
 future==0.17.1
 google-api-python-client==1.7.9
@@ -31,7 +32,7 @@ pycparser==2.19
 pylint==2.3.1
 PySocks==1.7.0
 python-dateutil==2.8.0
-python-telegram-bot==11.1.0
+python-telegram-bot==12.0.0b1
 requests==2.5.0
 rsa==4.0
 six==1.12.0

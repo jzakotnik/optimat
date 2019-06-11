@@ -1,5 +1,7 @@
 
 from telegram.ext import MessageHandler, Filters, Updater
+import telegram.ext
+
 
 import parser
 import time
@@ -13,9 +15,21 @@ config = ConfigParser()
 config.read('config.ini')
 
 
-updater = Updater(token=config.get('main', 'TELEGRAM_BOT_TOKEN'))
+updater = Updater(token=config.get(
+    'main', 'TELEGRAM_BOT_TOKEN'), use_context=True)
+scheduler = updater.job_queue
+
 dispatcher = updater.dispatcher
 p = parser.Parser()
+
+
+def callback_updateDashboard(context: telegram.ext.CallbackContext):
+    p.updateDashboard()
+    #print("Scheduler executed")
+
+
+job = scheduler.run_repeating(
+    callback_updateDashboard, interval=300, first=1)
 
 
 def optimatHandler(update, context):
@@ -40,6 +54,7 @@ def timeInRange(start, end, x):
 
 def checkScheduler():
     # TODO this is all too harcoded, refactor
+    # TODO This doesn't work with the telegram.ext scheduler, since it blocks
     # send Traffic at 8:00
     if timeInRange(
             datetime.time(7, 59, 55), datetime.time(7, 59, 57),
@@ -55,19 +70,3 @@ def checkScheduler():
         result = p.parseInput('sbahn')
         updater.bot.sendMessage(config.get(
             'main', 'TELEGRAM_BOT_TOKEN'), result['reply'])
-
-
-logging.info('Listening...')
-secondCounter = 295  # when starting, trigger update dashboard after 5sec
-logging.info('Optimat started...')
-
-while 1:
-    time.sleep(1)
-    checkScheduler()  # if there are any scheduled bot messages, trigger them here
-    secondCounter += 1
-if (secondCounter >= 300):
-    try:
-        p.updateDashboard()  # this pushed all the data to a dashboard server every 5min
-    except Exception:
-        logging.info('Could not updated dashboard')
-    secondCounter = 0

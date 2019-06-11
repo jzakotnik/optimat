@@ -22,6 +22,8 @@ Currently it does
 ![Dashboard example](doc/sample_dashboard.jpg?raw=true "Dashboard example")
 
 # Installation
+
+## Basic install for the Telegram bot
 * Start from empty raspberry image Raspbian Stretch 4.14 (April 2019)
 * Burn image
 * Enable ssh access
@@ -44,5 +46,7 @@ Currently it does
 
 ![Telegram chat example](doc/sample_chat.jpg?raw=true "Telegram chat example")
 
+## Install autostart
+* copy startOptimat and startDashboard shell scripts
 
 

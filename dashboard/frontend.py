@@ -25,7 +25,7 @@ def dashboard(messages=None):
         dashdata = dashjsoncontent  # test?
         temptime = datetime.datetime.utcnow()
         dashdata['lastupdated'] = temptime.strftime('%H:%M')
-        print "Last update: " + dashdata['lastupdated']
+        print ("Last update: " + dashdata['lastupdated'])
         return 'Done update'
 
     return render_template('dashboard.html', dashdata=dashdata)
