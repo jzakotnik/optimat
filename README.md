@@ -18,7 +18,7 @@ Currently it does
 * Local weather
 * Retrieving news from Spiegel Online Feed
 
-![Telegram chat example](doc/sample_dashboard.jpg?raw=true "Telegram chat example")
+![Telegram chat example](doc/sample_chat.jpg?raw=true "Telegram chat example")
 ![Dashboard example](doc/sample_dashboard.jpg?raw=true "Dashboard example")
 
 # Installation
