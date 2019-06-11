@@ -146,10 +146,10 @@ class Parser:
                     '&destinations='+GOOGLETRAFFIC_SOURCE +
                         '&departure_time=now&mode=driving&language=de-DE&key='
                 + GOOGLE_API_KEY)
-        logging.info(str(traffic_to))
-        logging.info(str(traffic_back))
-        data_to=json.load(str(traffic_to))
-        data_back=json.load(str(traffic_back))
+        logging.info("Resulting traffic to destionation: " + str(traffic_to))
+        logging.info("Resulting traffic to source: " + str(traffic_back))
+        data_to=json.load(traffic_to)
+        data_back=json.load(traffic_back)
         resultstring="Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
 
         return {
