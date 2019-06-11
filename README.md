@@ -18,7 +18,8 @@ Currently it does
 * Local weather
 * Retrieving news from Spiegel Online Feed
 
-![Alt text](doc/sample_dashboard.jpg?raw=true "Dashboard exampe")
+![Telegram chat example](doc/sample_dashboard.jpg?raw=true "Telegram chat example")
+![Dashboard example](doc/sample_dashboard.jpg?raw=true "Dashboard example")
 
 # Installation
 * Start from empty raspberry image Raspbian Stretch 4.14 (April 2019)
@@ -33,9 +34,12 @@ Currently it does
 * git clone git@github.com:jzakotnik/optimat.git
 * sudo pip3 install virtualenv
 * virtualenv env_optimat
+* source env_optimat/bin/activate
 * Install python and virtualenv
 * Install requirements.txt
 * Setup config file
+* python3 run.py
+* Got to telegram and send "verkehr kita"
 
 
 
