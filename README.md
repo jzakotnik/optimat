@@ -21,9 +21,21 @@ Currently it does
 ![Alt text](doc/sample_dashboard.jpg?raw=true "Dashboard exampe")
 
 # Installation
+* Start from empty raspberry image Raspbian Stretch 4.14 (April 2019)
+* Burn image
+* Enable ssh access
+* sudo apt-get update
+* sudo apt-get dist-upgrade
+* sudo apt-get install libffi-dev
+* sudo apt-get install build-essential libssl-dev libffi-dev python-dev
+* sudo apt-get install libxml2-dev libxslt-dev python-dev
+* ssh key gen add to github: ssh-keygen -t rsa -C "yourname@yourdomain.com"
+* git clone git@github.com:jzakotnik/optimat.git
+* sudo pip3 install virtualenv
+* virtualenv env_optimat
 * Install python and virtualenv
 * Install requirements.txt
-* On Raspberry, you need a cffi dependency: sudo apt-get update
-$ sudo apt-get install libffi-dev
+* Setup config file
+
 
 

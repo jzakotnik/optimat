@@ -4,7 +4,6 @@ from telegram.ext import MessageHandler, Filters, Updater
 import parser
 import time
 import datetime
-import optimatconfig as config
 import os
 import logging
 from configparser import ConfigParser
