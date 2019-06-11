@@ -308,9 +308,8 @@ class Parser:
         result="Master, hier Ihr Kontostand in Bitcoin. Sie sind sehr reich. Nicht.\n"
         result.encode('utf-8')
         BLOCKIO_APIKEY=self.config.get('main', 'BLOCKIO_APIKEY')
-        balance=json.load(
-            urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' +
-                            BLOCKIO_APIKEY))
+        r=urllib.request.urlopen('https://block.io/api/v2/get_balance/?api_key=' + BLOCKIO_APIKEY)
+        balance = json.loads(r.read().decode('UTF-8'))
         result = result + balance['data']['available_balance'] + ', unconfirmed: ' + balance['data']['pending_received_balance']
         return {'reply': result}
 
