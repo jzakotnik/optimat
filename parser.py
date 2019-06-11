@@ -163,11 +163,8 @@ class Parser:
         # check fuel price in my neighbourhood
         TANKEN_APIKEY = self.config.get('main', 'TANKEN_APIKEY')
         TANKEN_LOCATION = self.config.get('main', 'TANKEN_LOCATION')
-        fuelprice = json.load(
-            urllib.request.urlopen(
-                'https://creativecommons.tankerkoenig.de/json/prices.php?ids=' +
-                    TANKEN_LOCATION+'&apikey='
-                + TANKEN_APIKEY))
+        r = urllib.request.urlopen('https://creativecommons.tankerkoenig.de/json/prices.php?ids=' + TANKEN_LOCATION+'&apikey=' + TANKEN_APIKEY)
+        fuelprice = json.loads(r.read().decode('UTF-8'))
         resultstring=''
         try:
             resultstring="Master, hier der Tankpreis E10 bei Aral: " + str(

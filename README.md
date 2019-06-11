@@ -38,6 +38,7 @@ Currently it does
 * Install python and virtualenv
 * Install requirements.txt
 * Setup config file
+* Copy google-credentials.json if you need the calendar function
 * python3 run.py
 * Got to telegram and send "verkehr kita"
 
