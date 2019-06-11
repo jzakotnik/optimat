@@ -148,8 +148,8 @@ class Parser:
                 + GOOGLE_API_KEY)
         logging.info("Resulting traffic to destionation: " + str(traffic_to))
         logging.info("Resulting traffic to source: " + str(traffic_back))
-        data_to=json.load(traffic_to)
-        data_back=json.load(traffic_back)
+        data_to=json.loads(traffic_to.read().decode('UTF-8'))
+        data_back=json.loads(traffic_back.read().decode('UTF-8'))
         resultstring="Master, hier aktueller Verkehr zur Kita: " + data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + ", Rueckweg: " + data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
 
         return {
