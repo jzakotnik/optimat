@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 sleep 20
 cd /home/pi/optimat
 source optimat_pythonenv/bin/activate
