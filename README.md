@@ -42,7 +42,7 @@ Currently it does
 * Setup config file
 * Copy google-credentials.json if you need the calendar function
 * python3 run.py
-* Got to telegram and send "verkehr kita"
+* Go to telegram and send "verkehr kita"
 
 ![Telegram chat example](doc/sample_chat.jpg?raw=true "Telegram chat example")
 
