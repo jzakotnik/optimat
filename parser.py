@@ -154,8 +154,8 @@ class Parser:
             data_to['rows'][0]['elements'][0]['duration_in_traffic']['text'] + \
             ", Rueckweg: " + \
             data_back['rows'][0]['elements'][0]['duration_in_traffic']['text']
-        durationValue = int(
-            float(data_to['rows'][0]['elements'][0]['duration_in_traffic']['value']))
+        durationValue = round(
+            data_to['rows'][0]['elements'][0]['duration_in_traffic']['value'])
         return {
             'reply':
             resultstring,
