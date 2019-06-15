@@ -3,10 +3,10 @@ from configparser import ConfigParser
 
 
 import smtplib
-
+import logging
 from os import listdir
 import os.path
-from email import Encoders
+from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -17,10 +17,10 @@ config.read('config.ini')
 logging.basicConfig(filename='optimat_alarm.log', level=logging.INFO)
 
 try:
-    mail_user = self.config.get('main', 'MAIL_SENDER')
-    mail_pwd = self.config.get('main', 'MAIL_PASSWORD')
-    mail_to = self.config.get('main', 'MAIL_RECIPIENT')
-    MAIL_SERVER = self.config.get('main', 'MAIL_SERVER')
+    mail_user = config.get('main', 'MAIL_SENDER')
+    mail_pwd = config.get('main', 'MAIL_PASSWORD')
+    mail_to = config.get('main', 'MAIL_RECIPIENT')
+    MAIL_SERVER = config.get('main', 'MAIL_SERVER')
 
     msg = MIMEMultipart()
     mp4files = [f for f in listdir('alarmimages/') if f.endswith('.mp4')]
@@ -32,7 +32,7 @@ try:
     part = MIMEBase('application', 'octet-stream')
 
     part.set_payload(open('alarmimages/'+mp4files[0], 'rb').read())
-    Encoders.encode_base64(part)
+    encoders.encode_base64(part)
     part.add_header('Content-Disposition', 'attachment; filename="%s"' %
                     os.path.basename('alarmimages/'+mp4files[0]))
     msg.attach(part)
