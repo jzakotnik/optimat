@@ -1,7 +1,7 @@
 #various config files and cache
 google-credentials.json
 optimatconfig.py
-optimat.log
+*.log
 conversion_results.txt
 alarmimages/
 filecache/
