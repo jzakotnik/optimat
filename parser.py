@@ -188,12 +188,18 @@ class Parser:
     def startAlarm(self):
         # this starts motion detection for a connected webcam
         # clean up alarmimages
-        subprocess.call('rm -rf /home/pi/optimat/alarmimages/*', shell=True)
-        # start daemon
-        # maybe this?  on_event_end /home/guillo/bin/motion_encode_and_delete_jpgs gap 10
-        subprocess.call('nohup sudo motion -p pid.txt', shell=True)
-        self.config.set("main", "ALARM_IS_ON", "1")
         result = "Alarm wurde aktiviert.."
+        try:
+            subprocess.call(
+                'rm -rf /home/pi/optimat/alarmimages/*', shell=True)
+            # start daemon
+            # maybe this?  on_event_end /home/guillo/bin/motion_encode_and_delete_jpgs gap 10
+            subprocess.call('nohup sudo motion -p pid.txt', shell=True)
+            self.config.set("main", "ALARM_IS_ON", "1")
+            result = "Alarm wurde aktiviert.."
+        except Exception:
+            logging.exception("Could not activate alarm")
+            result = "Alarm wurde nicht aktiviert, technischer Fehler.."
         return {'reply': result}
 
     def stopAlarm(self):

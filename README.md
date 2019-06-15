@@ -49,4 +49,8 @@ Currently it does
 ## Install autostart
 * copy startOptimat and startDashboard shell scripts
 
+## Enable camera
+* Enable camera module
+* sudo apt-get install motion -y
+* Copy motion.conf to /etc/motion/motion.conf
 
