@@ -5,6 +5,7 @@ optimat.log
 conversion_results.txt
 alarmimages/
 filecache/
+.vscode/
 optimat_pythonenv/
 nohup.out
 config.ini

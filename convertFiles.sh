@@ -11,8 +11,9 @@ do
   avconv -i $file -c:v libx264 -c:a copy $result$extension >> conversion_results.txt
 done
 #now execute the python script to send this to my email..
-cd ..
-python sendNotificationEmail.py >> conversion_results.txt
+cd /home/pi/optimat
+source env_optimat/bin/activate
+python3 sendNotificationEmail.py >> conversion_results.txt
 cd alarmimages
 rm -rf *.mp4 *.avi
 cd ..

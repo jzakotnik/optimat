@@ -1,4 +1,6 @@
-import optimatconfig as config
+
+from configparser import ConfigParser
+
 
 import smtplib
 
@@ -9,9 +11,14 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-mail_user = config.MAIL_SENDER
-mail_pwd = config.MAIL_PASSWORD
-mail_to = config.MAIL_RECIPIENT
+config = ConfigParser()
+config.read('config.ini')
+
+mail_user = self.config.get('main', 'MAIL_SENDER')
+mail_pwd = self.config.get('main', 'MAIL_PASSWORD')
+mail_to = self.config.get('main', 'MAIL_RECIPIENT')
+MAIL_SERVER = self.config.get('main', 'MAIL_SERVER')
+
 msg = MIMEMultipart()
 mp4files = [f for f in listdir('alarmimages/') if f.endswith('.mp4')]
 msg['From'] = mail_user
@@ -28,7 +35,7 @@ part.add_header('Content-Disposition', 'attachment; filename="%s"' %
                 os.path.basename('alarmimages/'+mp4files[0]))
 msg.attach(part)
 
-mailServer = smtplib.SMTP(config.MAIL_SERVER, 587)
+mailServer = smtplib.SMTP(MAIL_SERVER, 587)
 mailServer.ehlo()
 mailServer.starttls()
 mailServer.ehlo()
