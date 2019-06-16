@@ -479,13 +479,14 @@ class Parser:
 
             # retrieved real data starts here:
             traffic = self.getKitaTraffic()
-            dashdata['traffic'] = str(traffic['toDuration'] / 60) + 'min'
+            dashdata['traffic'] = str(
+                round(float(traffic['toDuration']) / 60)) + 'min'
 
             weather = self.checkWeather()
             dashdata['temperature'] = str(
                 int(round(float(weather['onlyTemp'])))) + ' C'
-            logging.info("Logging temperatur for dashboard: " +
-                         dashdata['temperature'])
+            # logging.info("Logging temperatur for dashboard: " +
+            #             dashdata['temperature'])
             forecast = self.checkWeatherForecast()
             dashdata['forecast'] = forecast['onlyForecast']
 
