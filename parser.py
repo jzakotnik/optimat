@@ -484,7 +484,8 @@ class Parser:
             weather = self.checkWeather()
             dashdata['temperature'] = str(
                 int(round(float(weather['onlyTemp'])))) + ' C'
-
+            logging.info("Logging temperatur for dashboard: " +
+                         dashdata['temperature'])
             forecast = self.checkWeatherForecast()
             dashdata['forecast'] = forecast['onlyForecast']
 
