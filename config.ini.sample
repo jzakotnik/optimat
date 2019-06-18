@@ -1,0 +1,40 @@
+[main]
+TELEGRAM_BOT_TOKEN = sample
+MY_TELEGRAM_ID = sample
+GOOGLE_API_KEY = sample
+MAIL_SENDER = sample@emaildomain.com
+MAIL_PASSWORD = sample
+MAIL_RECIPIENT = sample@emaildomain.com
+MAIL_SERVER = mail.server.sample.com
+
+GOOGLETRAFFIC_SOURCE = Home location
+GOOGLETRAFFIC_DESTINATION = Target Location
+
+GOOGLECALENDAR_ID = calendar_identitiy@gmail.com
+
+FRITZ_IP = 192.168.178.1
+FRITZ_USER = someuser
+FRITZ_PASSWORD = somepassword
+
+NAS_IP = 192.168.178.xx
+NAS_USER = user
+NAS_PASSWORD = password
+NAS_BASEFOLDER = /basefolderifneeded/
+
+
+ALARM_IS_ON = 0  # this is for the webcam, by default turn it off
+ALARM_COUNT = 0
+
+COUCHDB_SERVER = 192.168.178.x
+
+BLOCKIO_APIKEY = apikey
+BLOCKIO_PIN = pin
+BLOCKIO_TARGETWALLET = somewallet
+
+
+OPENWEATHER_APIKEY = weatherapi
+OPENWEATHER_LOCATIONID = location
+
+
+TANKEN_APIKEY = anotherkey
+TANKEN_LOCATION = anotherlocation
