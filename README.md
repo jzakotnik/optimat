@@ -45,8 +45,10 @@ This installation guide describes how to install the software from scratch. Foll
 
 ## Install autostart
 To make sure that the dashboard and the chatbot starts automatically at startup, edit the file `/etc/rc.local`and add these lines:
-`nohup /home/pi/optimat/scripts/startDashboard.sh >/dev/null 2>&1 &`
-`nohup /home/pi/optimat/scripts/startOptimat.sh &`
+```
+nohup /home/pi/optimat/scripts/startDashboard.sh >/dev/null 2>&1 &
+nohup /home/pi/optimat/scripts/startOptimat.sh &
+```
 
 ## Enable camera
 * Enable camera module
