@@ -27,9 +27,12 @@ dispatcher = updater.dispatcher
 
 
 def optimatHandler(update, context):
-    result = p.parseInput(update.message.text)
-    updater.bot.sendMessage(config.get(
-        'main', 'MY_TELEGRAM_ID'), result['reply'])
+    try:
+        result = p.parseInput(update.message.text)
+        updater.bot.sendMessage(config.get(
+            'main', 'MY_TELEGRAM_ID'), result['reply'])
+    except Exception:
+        logging.exception("Handlig telegram message failed")
 
 
 optimat = MessageHandler(Filters.text, optimatHandler)
@@ -60,11 +63,14 @@ def callback_sendTrain(context):
         logging.exception("Scheduled train info could not be sent")
 
 
-TrainUpdateJob = scheduler.run_daily(
-    callback_sendTrain, datetime.time(hour=22, minute=27, second=0))
+# TrainUpdateJob = scheduler.run_daily(
+#    callback_sendTrain, datetime.time(hour=22, minute=27, second=0))
 
 logging.info("Started Optimat at")
 logging.info(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))
 
 # This checks for new messages
-updater.start_polling()
+try:
+    updater.start_polling()
+except:
+    logging.exception("Telegram polling failed")
