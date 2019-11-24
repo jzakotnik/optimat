@@ -467,7 +467,7 @@ class Parser:
             logging.info("Setting a new topic")
             f.write(inputmessage)
             f.close()
-            return {'reply': "Saved motd", 'motd': [inputmessage]}
+            return {'reply': "Saved motd: " + inputmessage, 'motd': [inputmessage]}
         except Exception:
             logging.exception("Save Topic went wrong")
 
