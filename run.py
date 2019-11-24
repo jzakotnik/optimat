@@ -63,8 +63,22 @@ def callback_sendTrain(context):
         logging.exception("Scheduled train info could not be sent")
 
 
+def callback_sendQuote(context):
+    try:
+        #result = p.parseInput('Thema test')
+        p.saveRandomMotd()
+        # updater.bot.sendMessage(config.get(
+        #    'main', 'MY_TELEGRAM_ID'), result['reply'])
+    except Exception:
+        logging.exception("Scheduled quote info could not be sent")
+
+
 # TrainUpdateJob = scheduler.run_daily(
 #    callback_sendTrain, datetime.time(hour=22, minute=27, second=0))
+
+QuoteUpdateJob = scheduler.run_daily(
+    callback_sendQuote, datetime.time(hour=20, minute=00, second=0))
+
 
 logging.info("Started Optimat at")
 logging.info(datetime.datetime.now().strftime("%I:%M%p on %B %d, %Y"))

@@ -471,6 +471,19 @@ class Parser:
         except Exception:
             logging.exception("Save Topic went wrong")
 
+    def saveRandomMotd(self):
+        try:
+            f = open("motd.txt", "w+")
+            logging.info("Setting a new topic")
+            r = urllib.request.urlopen('http://quotes.rest/qod.json')
+            out = json.loads(r.read().decode('UTF-8'))
+            quote = out['contents']['quotes'][0]['quote']
+            f.write(quote)
+            f.close()
+            return {'reply': "Saved motd: " + quote, 'motd': [quote]}
+        except Exception:
+            logging.exception("Save Topic went wrong")
+
     def updateDashboard(self, displayFuel=False):
         try:
             print ("Update the dashboard..")
