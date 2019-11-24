@@ -25,6 +25,7 @@
 	• Telefon Anrufe
 	• Benzinpreis
 	• Wetter
+	* Message of the day
 News
 -->
 <div class="container">
@@ -129,7 +130,11 @@ News
 		<div class="col-sm-12 col-lg-12">
 			<div class="dash-unit">
 				<dtitle>Message of the day</dtitle>
-
+				<div class="text">
+					{% for message in dashdata['motd'] %}
+					<p>{{message}}</p>
+					{% endfor %}
+				</div>
 			</div>
 		</div>
 	</div>

@@ -14,6 +14,7 @@ dashdata['news'] = ['News1', 'News2', 'News C', 'News D', 'News E']
 dashdata['calendar'] = ['Cal 1', 'Cal 2', 'Cal C', 'Cal  D', 'Cal E']
 temptime = datetime.datetime.utcnow()
 dashdata['lastupdated'] = temptime.strftime('%H:%M')
+dashdata['motd'] = ["Eine Nachricht des Tages"]
 
 
 @app.route("/dashboard", methods=['GET', 'POST'])
