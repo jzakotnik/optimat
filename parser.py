@@ -477,7 +477,8 @@ class Parser:
             logging.info("Setting a new topic")
             r = urllib.request.urlopen('http://quotes.rest/qod.json')
             out = json.loads(r.read().decode('UTF-8'))
-            quote = out['contents']['quotes'][0]['quote'] + ", " out['contents']['quotes'][0]['author']
+            quote = out['contents']['quotes'][0]['quote'] + \
+                ", " + out['contents']['quotes'][0]['author']
             f.write(quote)
             f.close()
             return {'reply': "Saved motd: " + quote, 'motd': [quote]}

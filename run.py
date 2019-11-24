@@ -77,7 +77,7 @@ def callback_sendQuote(context):
 #    callback_sendTrain, datetime.time(hour=22, minute=27, second=0))
 
 QuoteUpdateJob = scheduler.run_daily(
-    callback_sendQuote, datetime.time(hour=20, minute=15, second=0))
+    callback_sendQuote, datetime.time(hour=20, minute=20, second=0))
 
 
 logging.info("Started Optimat at")
