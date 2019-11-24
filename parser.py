@@ -536,7 +536,7 @@ class Parser:
         logging.info("Got request: " + str(request))
 
         # send a message to the dashboard
-        if request.find("thema") >= 0:
+        if request.lower().find("thema") >= 0:
             inputmessage = request[6:]
             result = self.saveMotd(inputmessage)
 
