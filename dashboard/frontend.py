@@ -19,7 +19,7 @@ dashdata['motd'] = ["Eine Nachricht des Tages"]
 
 @app.route("/dashboard", methods=['GET', 'POST'])
 def dashboard(messages=None):
-    # print "show dashboard..." + str(request.data)
+    print ("show dashboard..." + str(request.data))
     global dashdata
     if request.method == 'POST':
         dashjsoncontent = request.json

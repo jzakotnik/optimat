@@ -450,9 +450,24 @@ class Parser:
             'Executed rss feed parse ,this is the result' + resultstring)
         return {'reply': resultstring, 'newslist': newsitem}
 
-    def saveTopic(self, inputmessage):
+    def getMotd(self):
         try:
+            f = open("motd.txt", "r+")
             logging.info("Setting a new topic")
+            result = f.readline()
+            f.close()
+            return {'reply': [result], 'motd': [result]}
+        except Exception:
+            logging.exception("Could not read message of the day from file")
+            return {'reply': 'Keine neue Nachricht', 'motd': "Keine neue Nachricht"}
+
+    def saveMotd(self, inputmessage):
+        try:
+            f = open("motd.txt", "w+")
+            logging.info("Setting a new topic")
+            f.write(inputmessage)
+            f.close()
+            return {'reply': "Saved motd", 'motd': [inputmessage]}
         except Exception:
             logging.exception("Save Topic went wrong")
 
@@ -476,6 +491,7 @@ class Parser:
             dashdata['forecast'] = [('t', '12', 'ico')]
             dashdata['miner'] = '0'
             dashdata['reward'] = '0'
+            dashdata['motd'] = 'Nachricht des Tages'
 
             # retrieved real data starts here:
             traffic = self.getKitaTraffic()
@@ -502,6 +518,10 @@ class Parser:
 
             fuel = self.getFuelPrice()
             dashdata['fuel'] = str(fuel['fuelPrice']) + 'EUR'
+
+            motd = self.getMotd()
+            print(motd)
+            dashdata['motd'] = motd['motd']
 
             # TODO this could be routed to any dashboard, not only the local one
             print (requests.post(
@@ -592,7 +612,7 @@ class Parser:
         # send a message to the dashboard
         if request.find("thema") >= 0:
             inputmessage = request[6:]
-            result = self.saveTopic(inputmessage)
+            result = self.saveMotd(inputmessage)
 
         # save status, TODO make this configurable
         if request in [
