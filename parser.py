@@ -535,6 +535,11 @@ class Parser:
         result = {'reply': "Master, ich weiss nicht was Du meinst!"}
         logging.info("Got request: " + str(request))
 
+        # send a message to the dashboard
+        if request.find("thema") >= 0:
+            inputmessage = request[6:]
+            result = self.saveMotd(inputmessage)
+
         # is it a file to be emailed from my NAS
         if str.lower(request).find("send") >= 0:
             print ("file detected...")
@@ -608,11 +613,6 @@ class Parser:
         # spiegel online news
         if request == ("news"):
             result = self.checkNews()
-
-        # send a message to the dashboard
-        if request.find("thema") >= 0:
-            inputmessage = request[6:]
-            result = self.saveMotd(inputmessage)
 
         # save status, TODO make this configurable
         if request in [
