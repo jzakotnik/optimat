@@ -1,0 +1,12 @@
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+#@xscreensaver -no-splash
+@point-rpi
+
+@xset s off
+@xset -dpms
+@xset s noblank
+
+@chromium-browser --disable-session-crashed-bubble --noerrdialogs --disable-features=TranslateUI --disable-infobars --incognito --kiosk http://192.168.178.38:5000/dashboard
+#@chromium-browser --disable-session-crashed-bubble --noerrdialogs --disable-translate --disable-infobars --incognito --kiosk http://192.168.178.48:5000
+

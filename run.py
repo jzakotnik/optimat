@@ -1,5 +1,7 @@
 
 from telegram.ext import MessageHandler, Filters, Updater
+from telegram.error import (TelegramError, Unauthorized, BadRequest,
+                            TimedOut, ChatMigrated, NetworkError)
 import telegram.ext
 
 import parser
@@ -26,6 +28,15 @@ dispatcher = updater.dispatcher
 # this handler reacts on messages sent to the bot
 
 
+def error_callback(update, context):
+    try:
+        raise context.error
+    except TimedOut:
+        logging.exception("timeout error")
+    except NetworkError:
+        logging.exception("Network error")
+
+
 def optimatHandler(update, context):
     try:
         result = p.parseInput(update.message.text)
@@ -37,6 +48,7 @@ def optimatHandler(update, context):
 
 optimat = MessageHandler(Filters.text, optimatHandler)
 dispatcher.add_handler(optimat)
+dispatcher.add_error_handler(error_callback)
 
 # this handler is triggered via scheduler every 5min to update the dashboard in the kitchen
 
