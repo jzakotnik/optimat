@@ -102,7 +102,7 @@ class Parser:
             scopes = ['https://www.googleapis.com/auth/calendar']
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 'google-credentials.json', scopes)
-            cal = build('calendar', 'v3', credentials=credentials)
+            cal = build('calendar', 'v3', credentials=credentials, cache_discovery=False)
             now = datetime.datetime.utcnow().isoformat(
             ) + 'Z'  # 'Z' indicates UTC time
             eventsResult = cal.events().list(
