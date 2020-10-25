@@ -477,10 +477,20 @@ class Parser:
             r = urllib.request.urlopen(
                 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=GEN%20%3D%20%27HOCHTAUNUSKREIS%27&outFields=*&outSR=4326&f=json')
             out = json.loads(r.read().decode('UTF-8'))
-            corona = int(
+            corona_hochtaunus = int(
                 round(out['features'][0]['attributes']['cases7_per_100k']))
-            logging.info(corona)
-            return {'reply': "Corona data: " + "tbd", 'corona': [corona]}
+            r = urllib.request.urlopen(
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=GEN%20%3D%20%27FRANKFURT%20AM%20MAIN%27&outFields=*&outSR=4326&f=json')
+            out = json.loads(r.read().decode('UTF-8'))
+            corona_ffm = int(
+                round(out['features'][0]['attributes']['cases7_per_100k']))
+            r = urllib.request.urlopen(
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?where=LAN_ew_GEN%20%3D%20%27HESSEN%27&outFields=LAN_ew_EWZ,OBJECTID,Fallzahl,Aktualisierung,AGS_TXT,GlobalID,faelle_100000_EW,Shape__Area,Shape__Length,Death,cases7_bl_per_100k,OBJECTID_1,LAN_ew_GEN&returnGeometry=false&outSR=4326&f=json')
+            out = json.loads(r.read().decode('UTF-8'))
+            corona_hessen = int(
+                round(out['features'][0]['attributes']['cases7_bl_per_100k']))
+
+            return {'reply': "Corona data: " + "tbd", 'corona': [corona_hochtaunus, corona_ffm, corona_hessen]}
         except Exception:
             logging.exception("Save Topic went wrong")
 
@@ -553,7 +563,7 @@ class Parser:
 
             corona = self.getCorona()
             print(corona)
-            dashdata['corona'] = corona['corona'][0]
+            dashdata['corona'] = corona['corona']
 
             # TODO this could be routed to any dashboard, not only the local one
             print(requests.post(
