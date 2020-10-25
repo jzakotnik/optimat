@@ -477,7 +477,8 @@ class Parser:
             r = urllib.request.urlopen(
                 'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=GEN%20%3D%20%27HOCHTAUNUSKREIS%27&outFields=*&outSR=4326&f=json')
             out = json.loads(r.read().decode('UTF-8'))
-            corona = out['features'][0]['attributes']['cases7_per_100k']
+            corona = int(
+                round(out['features'][0]['attributes']['cases7_per_100k']))
             logging.info(corona)
             return {'reply': "Corona data: " + "tbd", 'corona': [corona]}
         except Exception:
