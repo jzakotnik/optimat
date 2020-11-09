@@ -60,8 +60,8 @@ class Parser:
             user=FRITZ_USER,
             password=FRITZ_PASSWORD)
         fritz = f.call_action('X_AVM-DE_OnTel', 'GetCallList')
-        print ("This is the URL for the callers, including session token for now: " +
-               fritz["NewCallListURL"])
+        print("This is the URL for the callers, including session token for now: " +
+              fritz["NewCallListURL"])
         xmlhandle = urllib.request.urlopen(fritz["NewCallListURL"])
         xmlresult = xmlhandle.read()
         xmlhandle.close()
@@ -102,7 +102,8 @@ class Parser:
             scopes = ['https://www.googleapis.com/auth/calendar']
             credentials = ServiceAccountCredentials.from_json_keyfile_name(
                 'google-credentials.json', scopes)
-            cal = build('calendar', 'v3', credentials=credentials, cache_discovery=False)
+            cal = build('calendar', 'v3', credentials=credentials,
+                        cache_discovery=False)
             now = datetime.datetime.utcnow().isoformat(
             ) + 'Z'  # 'Z' indicates UTC time
             eventsResult = cal.events().list(
@@ -207,7 +208,7 @@ class Parser:
         with open('pid.txt', 'r') as f:
             pid = f.read().replace('\n', '')
         f.close()
-        print ('Killing process motion with pid: ' + pid)
+        print('Killing process motion with pid: ' + pid)
         subprocess.call('sudo kill ' + pid, shell=True)
         self.config.set("main", "ALARM_IS_ON", "0")
         result = "Alarm wurde de-aktiviert.."
@@ -471,6 +472,28 @@ class Parser:
         except Exception:
             logging.exception("Save Topic went wrong")
 
+    def getCorona(self):
+        try:
+            r = urllib.request.urlopen(
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=GEN%20%3D%20%27HOCHTAUNUSKREIS%27&outFields=*&outSR=4326&f=json')
+            out = json.loads(r.read().decode('UTF-8'))
+            corona_hochtaunus = int(
+                round(out['features'][0]['attributes']['cases7_per_100k']))
+            r = urllib.request.urlopen(
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/RKI_Landkreisdaten/FeatureServer/0/query?where=GEN%20%3D%20%27FRANKFURT%20AM%20MAIN%27&outFields=*&outSR=4326&f=json')
+            out = json.loads(r.read().decode('UTF-8'))
+            corona_ffm = int(
+                round(out['features'][0]['attributes']['cases7_per_100k']))
+            r = urllib.request.urlopen(
+                'https://services7.arcgis.com/mOBPykOjAyBO2ZKk/arcgis/rest/services/Coronaf%C3%A4lle_in_den_Bundesl%C3%A4ndern/FeatureServer/0/query?where=LAN_ew_GEN%20%3D%20%27HESSEN%27&outFields=LAN_ew_EWZ,OBJECTID,Fallzahl,Aktualisierung,AGS_TXT,GlobalID,faelle_100000_EW,Shape__Area,Shape__Length,Death,cases7_bl_per_100k,OBJECTID_1,LAN_ew_GEN&returnGeometry=false&outSR=4326&f=json')
+            out = json.loads(r.read().decode('UTF-8'))
+            corona_hessen = int(
+                round(out['features'][0]['attributes']['cases7_bl_per_100k']))
+
+            return {'reply': "Corona data: " + "tbd", 'corona': [corona_hochtaunus, corona_ffm, corona_hessen]}
+        except Exception:
+            logging.exception("Save Topic went wrong")
+
     def saveRandomMotd(self):
         try:
             f = open("motd.txt", "w+")
@@ -485,9 +508,18 @@ class Parser:
         except Exception:
             logging.exception("Save Topic went wrong")
 
+    def triggerFunction(self):
+        FUNCTION_URL = self.config.get('main', 'FUNCTION_URL')
+        try:
+            logging.info("Executing function")
+            r = urllib.request.urlopen(FUNCTION_URL)
+            return {'reply': 'Done'}
+        except Exception:
+            logging.exception("Save Topic went wrong")
+
     def updateDashboard(self, displayFuel=False):
         try:
-            print ("Update the dashboard..")
+            print("Update the dashboard..")
             # initial data before the API call
             dashdata = {
                 'traffic': '16m',
@@ -506,6 +538,7 @@ class Parser:
             dashdata['miner'] = '0'
             dashdata['reward'] = '0'
             dashdata['motd'] = 'Nachricht des Tages'
+            dashdata['corona'] = '00'
 
             # retrieved real data starts here:
             traffic = self.getKitaTraffic()
@@ -537,12 +570,16 @@ class Parser:
             print(motd)
             dashdata['motd'] = motd['motd']
 
+            corona = self.getCorona()
+            print(corona)
+            dashdata['corona'] = corona['corona']
+
             # TODO this could be routed to any dashboard, not only the local one
-            print (requests.post(
+            print(requests.post(
                 'http://localhost:5000/dashboard', json=dashdata))
 
         except Exception:
-            print ('Ohoh, something went wrong when updating the dashboard...')
+            print('Ohoh, something went wrong when updating the dashboard...')
 
     def parseInput(self, request):
         # default reply if none of the keywords was used
@@ -556,7 +593,7 @@ class Parser:
 
         # is it a file to be emailed from my NAS
         if str.lower(request).find("send") >= 0:
-            print ("file detected...")
+            print("file detected...")
             myfile = request[5:]
             self.sendFileViaEmail(myfile)
             result = "eMail wurde verschickt, viel Spass damit!"

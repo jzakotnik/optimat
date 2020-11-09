@@ -85,11 +85,36 @@ def callback_sendQuote(context):
         logging.exception("Scheduled quote info could not be sent")
 
 
+def callback_triggerFunction(context):
+    try:
+        #result = p.parseInput('Thema test')
+        p.triggerFunction()
+        # updater.bot.sendMessage(config.get(
+        #    'main', 'MY_TELEGRAM_ID'), result['reply'])
+    except Exception:
+        logging.exception("Scheduled function could not be sent")
+
+
+# def callback_sendCorona(context):
+#    try:
+        #result = p.parseInput('Thema test')
+#        p.getCorona()
+        # updater.bot.sendMessage(config.get(
+        #    'main', 'MY_TELEGRAM_ID'), result['reply'])
+#    except Exception:
+#        logging.exception("Scheduled corona info could not be sent")
+
+
 # TrainUpdateJob = scheduler.run_daily(
 #    callback_sendTrain, datetime.time(hour=22, minute=27, second=0))
-
 QuoteUpdateJob = scheduler.run_daily(
     callback_sendQuote, datetime.time(hour=20, minute=20, second=0))
+
+FunctionUpdateJob = scheduler.run_daily(
+    callback_triggerFunction, datetime.time(hour=7, minute=30, second=0))
+
+# CoronaUpdateJob = scheduler.run_daily(
+#    callback_sendCorona, datetime.time(hour=6, minute=20, second=0))
 
 
 logging.info("Started Optimat at")
