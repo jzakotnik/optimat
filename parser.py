@@ -508,6 +508,15 @@ class Parser:
         except Exception:
             logging.exception("Save Topic went wrong")
 
+    def triggerFunction(self):
+        FUNCTION_URL = self.config.get('main', 'FUNCTION_URL')
+        try:
+            logging.info("Executing function")
+            r = urllib.request.urlopen(FUNCTION_URL)
+            return {'reply': 'Done'}
+        except Exception:
+            logging.exception("Save Topic went wrong")
+
     def updateDashboard(self, displayFuel=False):
         try:
             print("Update the dashboard..")
