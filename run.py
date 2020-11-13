@@ -111,7 +111,7 @@ QuoteUpdateJob = scheduler.run_daily(
     callback_sendQuote, datetime.time(hour=20, minute=20, second=0))
 
 FunctionUpdateJob = scheduler.run_daily(
-    callback_triggerFunction, datetime.time(hour=7, minute=30, second=0))
+    callback_triggerFunction, datetime.time(hour=7, minute=30, second=0), days=tuple(range(5)))
 
 # CoronaUpdateJob = scheduler.run_daily(
 #    callback_sendCorona, datetime.time(hour=6, minute=20, second=0))
