@@ -126,7 +126,7 @@ class Parser:
                 result = result + resulttime + '\n' + i['summary'] + '\n'
                 calitem[calcounter] = resulttime + ': ' + i['summary']
                 calcounter = calcounter + 1
-            cal.close()
+            # cal.close()
             return {'reply': result, 'calendarlist': calitem}
         except:
             logging.exception("Exception when retrieving calendar data.")
