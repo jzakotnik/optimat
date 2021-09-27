@@ -32,11 +32,12 @@ import couchdb
 # google APIs authentication
 from oauth2client.service_account import ServiceAccountCredentials
 #from apiclient.discovery import build
+from googleapiclient.discovery import build
 
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
 #from apiclient.discovery import build
-from googleapiclient.discovery import build
+
 import datetime
 
 from configparser import ConfigParser
