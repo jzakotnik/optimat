@@ -88,7 +88,8 @@ def callback_sendQuote(context):
 def callback_triggerFunction(context):
     try:
         #result = p.parseInput('Thema test')
-        p.triggerFunction()
+        logging.info("Triggered azure function")
+        # stopped due to migration from telegram to signal : p.triggerFunction()
         # updater.bot.sendMessage(config.get(
         #    'main', 'MY_TELEGRAM_ID'), result['reply'])
     except Exception:
@@ -111,7 +112,7 @@ QuoteUpdateJob = scheduler.run_daily(
     callback_sendQuote, datetime.time(hour=20, minute=20, second=0))
 
 FunctionUpdateJob = scheduler.run_daily(
-    callback_triggerFunction, datetime.time(hour=7, minute=30, second=0), days=tuple(range(5)))
+    callback_triggerFunction, datetime.time(hour=4, minute=30, second=0), days=tuple(range(5)))
 
 # CoronaUpdateJob = scheduler.run_daily(
 #    callback_sendCorona, datetime.time(hour=6, minute=20, second=0))

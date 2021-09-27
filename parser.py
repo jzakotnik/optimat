@@ -31,11 +31,12 @@ import couchdb
 
 # google APIs authentication
 from oauth2client.service_account import ServiceAccountCredentials
-from apiclient.discovery import build
+#from apiclient.discovery import build
 
 from httplib2 import Http
 from oauth2client.service_account import ServiceAccountCredentials
-from apiclient.discovery import build
+#from apiclient.discovery import build
+from googleapiclient.discovery import build
 import datetime
 
 from configparser import ConfigParser
@@ -579,8 +580,9 @@ class Parser:
             print(requests.post(
                 'http://localhost:5000/dashboard', json=dashdata))
 
-        except Exception:
+        except Exception as e:
             print('Ohoh, something went wrong when updating the dashboard...')
+            print(e)
 
     def parseInput(self, request):
         # default reply if none of the keywords was used
