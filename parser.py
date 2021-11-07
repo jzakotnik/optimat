@@ -3,6 +3,7 @@ import urllib
 import requests
 import logging
 import smtplib
+import traceback
 
 import time
 
@@ -433,25 +434,28 @@ class Parser:
         return {'reply': resultstring, 'onlyForecast': forecast}
 
     def checkNews(self):
-        logging.info('Check news started...')
+        try:
+            logging.info('Check news started...')
 
-        f = feedparser.parse(
-            'http://www.spiegel.de/schlagzeilen/tops/index.rss')
-        logging.info('Executed rss feed parse')
-        # collect headlines
-        newsitem = [
-            'No headlines right now..', 'No headlines right now..',
-            'No headlines right now..', 'No headlines right now..',
-            'No headlines right now..'
-        ]
-        logging.info('Iterating over news')
-        for n in range(0, 5):
-            logging.info('This is the news' + f.entries[n]['title'])
-            newsitem[n] = f.entries[n]['title']
-        resultstring = 'Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
-            newsitem)
-        logging.info(
-            'Executed rss feed parse ,this is the result' + resultstring)
+            f = feedparser.parse(
+                'http://www.spiegel.de/schlagzeilen/tops/index.rss')
+            logging.info('Executed rss feed parse')
+            # collect headlines
+            newsitem = [
+                'No headlines right now..', 'No headlines right now..',
+                'No headlines right now..', 'No headlines right now..',
+                'No headlines right now..'
+            ]
+            logging.info('Iterating over news')
+            for n in range(0, 5):
+                logging.info('This is the news' + f.entries[n]['title'])
+                newsitem[n] = f.entries[n]['title']
+            resultstring = 'Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
+                newsitem)
+            logging.info(
+                'Executed rss feed parse ,this is the result' + resultstring)
+        except Exception as e:
+            logging.error(traceback.format_exc())
         return {'reply': resultstring, 'newslist': newsitem}
 
     def getMotd(self):
