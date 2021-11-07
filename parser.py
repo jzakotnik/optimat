@@ -526,7 +526,7 @@ class Parser:
 
     def updateDashboard(self, displayFuel=False):
         try:
-            print("Update the dashboard..")
+            logging.info("Update the dashboard..")
             # initial data before the API call
             dashdata = {
                 'traffic': '16m',
@@ -548,40 +548,48 @@ class Parser:
             dashdata['corona'] = '00'
 
             # retrieved real data starts here:
+            logging.info("Getting Kita traffic..")
             traffic = self.getKitaTraffic()
             dashdata['traffic'] = str(
                 round(float(traffic['toDuration']) / 60)) + 'min'
 
+            logging.info("Getting Weather..")
             weather = self.checkWeather()
             dashdata['temperature'] = str(
                 int(round(float(weather['onlyTemp'])))) + ' C'
             # logging.info("Logging temperatur for dashboard: " +
             #             dashdata['temperature'])
+            logging.info("Getting Weather forecast..")
             forecast = self.checkWeatherForecast()
             dashdata['forecast'] = forecast['onlyForecast']
 
+            logging.info("Getting News..")
             news = self.checkNews(
             )['newslist']  # news = list of news items from Spiegel online feed
             dashdata['news'] = news
 
+            logging.info("Getting Phone List..")
             tel = self.getPhoneList()['tellist']
             dashdata['tel'] = tel
 
+            logging.info("Getting Calendar events..")
             cal = self.getCalendarEvents()
             dashdata['calendar'] = cal['calendarlist']
 
+            logging.info("Getting fuel price..")
             fuel = self.getFuelPrice()
             dashdata['fuel'] = str(fuel['fuelPrice']) + 'EUR'
 
+            logging.info("Getting MOTD..")
             motd = self.getMotd()
-            print(motd)
             dashdata['motd'] = motd['motd']
 
+            logging.info("Getting Corona numbers..")
             corona = self.getCorona()
-            print(corona)
             dashdata['corona'] = corona['corona']
 
             # TODO this could be routed to any dashboard, not only the local one
+            logging.info("Posting all to dashboard..")
             print(requests.post(
                 'http://localhost:5000/dashboard', json=dashdata))
 
