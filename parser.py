@@ -448,9 +448,12 @@ class Parser:
             ]
             logging.info('Iterating over news')
             for n in range(0, 5):
-                logging.info('This is the news' + f.entries[n]['title'])
                 if 'title' in f.entries[n]:
+                    logging.info('This is the news:' + f.entries[n]['title'])
                     newsitem[n] = f.entries[n]['title']
+                else:
+                    logging.info(
+                        'This is the broken RSS feed: %s', f.entries[n])
             resultstring = 'Master, hier sind die aktuellen News von Spiegel Online:\n' + '\n'.join(
                 newsitem)
             logging.info(
