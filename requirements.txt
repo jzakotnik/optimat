@@ -33,7 +33,7 @@ MarkupSafe==1.1.1
 mccabe==0.6.1
 oauth2client==4.1.3
 pkg-resources==0.0.0
-protobuf==3.19.1
+protobuf==3.19.5
 pyaes==1.6.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
